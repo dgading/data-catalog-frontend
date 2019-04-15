@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
+import {Link} from 'react-router-dom';
 import Loader from 'react-loader-advanced';
 import LoadingSpin from 'react-loading-spin';
 import {SearchList} from 'interra-data-catalog-components';
 import {InputLarge} from 'interra-data-catalog-components';
-import {FacetList} from 'interra-data-catalog-components';
-import {Link} from 'interra-data-catalog-components';
-import {Navbar} from 'interra-data-catalog-components';
+import FacetList from './components/FacetList';
+//import {FacetList} from 'interra-data-catalog-components';
 import search from './services/search';
+import Navbar from './components/NavBar';
 const url = process.env.REACT_APP_INTERRA_BASE_URL;
 console.log(url);
 
