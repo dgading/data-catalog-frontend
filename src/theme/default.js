@@ -2,7 +2,7 @@ const defaultTheme = {
   backgroundColor: "#f9fafb",
   borderColor: "#A4B9C6",
   primaryDark: "#005489", // blueDark.
-  primary: "#0E76BC", // blue.
+  primary: "#0A76BC", // blue.
   primaryLight: "#27AAE1", // blueLight.
   primaryDust: "#F4F9FB", // blueDust.
   secondaryDark: "#dfb100", // yellowDark.

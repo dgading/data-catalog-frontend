@@ -1,8 +1,11 @@
-import React, { Component } from 'react';
-import { HomePageIconList } from 'interra-data-catalog-components';
-import { Hero } from 'interra-data-catalog-components';
-import backend from './services/backend';
-import Loader from 'react-loader';
+import React, { Component } from 'react'
+//import { IconList } from 'interra-data-catalog-components'
+import IconList from './components/IconList'
+import IconListItem from './components/IconListItem'
+import { Hero } from 'interra-data-catalog-components'
+import backend from './services/backend'
+import Loader from 'react-loader'
+import image from './assets/images/waves.jpg'
 
 class Home extends Component {
 
@@ -12,13 +15,13 @@ class Home extends Component {
 	}
 
   async fetchData() {
-		const { data } = await backend.get(`/collections/organization.json`);
+		const { data } = await backend.get(`/collections/theme.json`);
 		const items = data.map(x => {
 			let item = {
-				identifier: x.name,
-        ref: `search?org=${x.name}`,
-        title: x.name,
-        icon: x.image,
+				identifier: x.identifier,
+        ref: `search?theme=${x.identifier}`,
+        title: x.title,
+        //icon: x.icon,
 			}
 			return item
 		});
@@ -34,12 +37,11 @@ class Home extends Component {
 
 	render() {
     const { items, loaded } = this.state;
-
 		return (
 			<>
-				<Hero/>
+				<Hero image={image}/>
 				<Loader loaded={loaded}>
-					<HomePageIconList items={ items } />
+					<IconList items={ items } component={ IconListItem } paneTitle="Dataset Topics" />
 				</Loader>
 			</>
 		);
