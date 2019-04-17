@@ -169,7 +169,7 @@ class Search extends Component {
       Link,
       url: "search"
     };
-    console.log(items);
+
     return (
       <>
 
