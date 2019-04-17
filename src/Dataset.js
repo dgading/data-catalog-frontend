@@ -10,6 +10,7 @@ import { Tags } from 'interra-data-catalog-components';
 import DataTable from './components/DataTable';
 import backend from './services/backend';
 import datastore from './services/datastore';
+//import Tags from './components/Tags'
 
 
 class Dataset extends Component {
@@ -243,7 +244,7 @@ class Dataset extends Component {
                   </div>
                   <Text value={item.description} />
                   { Resources() }
-                  <Tags tags={tag} />
+                  <Tags tags={tag} path="../../../search?keyword=" />
                   <Table configuration={labelsT1} data={valuesT1} title="What's in this Dataset?" th1="Rows" th2="Columns" tableclass="table-one" />
                   <Table configuration={labelsT2} data={valuesT2} title="Columns in this Dataset" th1="Column Name" th2="Type" tableclass="table-two" />
                   <Table configuration={labelsT3} data={valuesT3} tableclass="table-three" />
