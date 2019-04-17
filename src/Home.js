@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
-//import { IconList } from 'interra-data-catalog-components'
-import IconList from './components/IconList'
-import IconListItem from './components/IconListItem'
+import { IconList } from 'interra-data-catalog-components'
+import { IconListItem } from 'interra-data-catalog-components'
 import { Hero } from 'interra-data-catalog-components'
 import backend from './services/backend'
 import Loader from 'react-loader'
@@ -19,8 +18,9 @@ class Home extends Component {
 		const items = data.map(x => {
 			let item = {
 				identifier: x.identifier,
-        ref: `search?theme=${x.identifier}`,
-        title: x.title,
+        ref: `search?theme=${x.title}`,
+				title: x.title,
+				color: '#0E76BC',
         //icon: x.icon,
 			}
 			return item

@@ -4,12 +4,10 @@ import Loader from 'react-loader-advanced';
 import LoadingSpin from 'react-loading-spin';
 import {SearchList} from 'interra-data-catalog-components';
 import {InputLarge} from 'interra-data-catalog-components';
-import FacetList from './components/FacetList';
-//import {FacetList} from 'interra-data-catalog-components';
+import {FacetList} from 'interra-data-catalog-components';
 import search from './services/search';
-import Navbar from './components/NavBar';
+
 const url = process.env.REACT_APP_INTERRA_BASE_URL;
-console.log(url);
 
 const InitialState = {
   items: [{
@@ -171,10 +169,10 @@ class Search extends Component {
       Link,
       url: "search"
     };
-
+    console.log(items);
     return (
       <>
-        <Navbar className="sa"/>
+
         <div className="search-page containter-fluid m-5">
           <div className="row">
             <div className="results-list col-md-9 col-sm-12 p-5">
