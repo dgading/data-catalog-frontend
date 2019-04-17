@@ -10,8 +10,6 @@ import { Tags } from 'interra-data-catalog-components';
 import DataTable from './components/DataTable';
 import backend from './services/backend';
 import datastore from './services/datastore';
-//import Tags from './components/Tags'
-
 
 class Dataset extends Component {
 
