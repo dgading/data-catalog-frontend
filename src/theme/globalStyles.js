@@ -77,7 +77,7 @@ const GlobalStyles = createGlobalStyle`
         letter-spacing: 0;
         text-transform: none;
       }
-      .pqdc-icon-list {
+      .opendata-icon-list {
         padding: 0;
       }
       li {
@@ -159,13 +159,13 @@ const GlobalStyles = createGlobalStyle`
     }
   
     @media all and (min-width: 1200px) {
-      .pqdc-icon-list li {
+      .opendata-icon-list li {
         width: 33.33%;
         max-width: 33.33%;
       }
     }
     @media all and (min-width: 769px) and (max-width : 1199px) {
-      .pqdc-icon-list li {
+      .opendata-icon-list li {
         width: 50%;
       }
     }

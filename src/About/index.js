@@ -1,13 +1,17 @@
 import React from 'react';
 import Wrapper from './Wrapper';
 import { FontAwesomeIcon } from 'interra-data-catalog-components';
+import Navbar from '../components/NavBar';
 
 class About extends React.Component {
 
   render() {
 
     return (
+      <>
+      <Navbar className="sa"/>
       <Wrapper className="page container-fluid">
+
         <div className="section">
           <h1>About this site</h1>
           <div className="section-content">
@@ -21,6 +25,7 @@ class About extends React.Component {
           </div>
         </div>
       </Wrapper>
+      </>
     );
   }
 }
