@@ -2,29 +2,49 @@ import React, { Component } from 'react';
 import {Link} from 'react-router-dom';
 import Loader from 'react-loader-advanced';
 import LoadingSpin from 'react-loading-spin';
-import {SearchList} from 'interra-data-catalog-components';
-import {InputLarge} from 'interra-data-catalog-components';
-import {FacetList} from 'interra-data-catalog-components';
+import SearchList from './components/SearchList';
+import FacetList from './components/FacetList';
 import search from './services/search';
+import backend from './services/backend';
+import Navbar from './components/NavBar';
+import Pagination from "react-js-pagination";
+import Wrapper from './theme/pagination.js'
+import { withRouter} from 'react-router-dom'
+import StyledSearchInput from './components/SearchInput';
+import SearchWrapper from './components/SearchInput';
+import { Select, FormLabel } from '@cmsgov/design-system-core';
+import PageHeader from './components/PageHeader';
 
-const url = process.env.REACT_APP_INTERRA_BASE_URL;
 
 const InitialState = {
-  items: [{
-    title: "loading",
-    description: "loading"
-  }],
-  index: false,
-  show: true,
-  page: 0,
-  query : "",
-  searchEngine: false,
-  facetsResults: {
-    theme: [],
-    keyword: [],
-    format: []
+    items: [{
+      title: "loading",
+      description: "loading"
+    }],
+    show: true,
+    page: 1,
+    pageSize: 10,
+    total: 0,
+    term : "",
+    sort: "alpha",
+    searchEngine: false,
+    facetsResults: {
+      theme: [],
+      keyword: []
+    },
+    facets: {
+      "theme": {
+        "label": "Topics",
+        "field": "theme.0.title",
+        "showAll": false
+      },
+      "keyword": {
+        "label": "Tags",
+        "field": "keyword.*.title",
+        "showAll": false
+      }
+    },
   }
-}
 
 class Search extends Component {
 
@@ -35,61 +55,72 @@ class Search extends Component {
     this.state = InitialState;
   }
 
-  facets = {
-    "theme": {
-      "label": "Category",
-      "field": "theme.0.title"
-    },
-    "keyword": {
-      "label": "Tags",
-      "field": "keyword.*.title"
-    },
-    "format": {
-      "label": "Format",
-      "field": "distribution.*.format"
-    }
-  };
-
-  async fetchData() {
+  async initSearch() {
+    const { facets } = this.state;
     const searchType = 'simpleSearch';
     const searchEngine = new search[searchType]();
-    const index = await searchEngine.init();
-    let facetsResults = await searchEngine.loadFacets(this.facets, index);
-    const initialItems = await this.normalize(index);
-    let items = initialItems;
+    // Simple Search service doesn't query directly.
+    const { data } = await backend.get("/search-index.json");
+    await searchEngine.init(data, facets);
+    this.setState({
+      searchEngine
+    });
+    return searchEngine;
+  }
+
+  /**
+   * Called on page load. Inits search engine and plugs in params to search.
+   */
+  async fetchData() {
+    const { pageSize, facets } = this.state;
+    const searchEngine = await this.initSearch();
+
     const params = new URLSearchParams(window.location.search);
-    let query = "";
+    let term = "";
+		let page = 1;
+    let sort = "alpha";
     let selectedFacets = [];
 
     for(let pair of params.entries()) {
-      let term = pair[0];
+      let param = pair[0];
       let value = pair[1];
-      if (term === 'q') {
-        query = value;
+      if (param === 'q') {
+        term = value;
+      }
+      else if (param === 'page') {
+        page = parseInt(value);
+      }
+      else if (param === 'sort') {
+        sort = value;
       }
       else {
-        if (Object.keys(this.facets).includes(term)) {
-          selectedFacets.push([term,value]);
+        if (Object.keys(facets).includes(param)) {
+          selectedFacets.push([param,value]);
         }
       }
     }
-    if (query || selectedFacets.length > 0) {
-      items = await searchEngine.query(query, selectedFacets, this.facets, index);
-      facetsResults = await searchEngine.loadFacets(this.facets, items);
-      items = await this.normalize(items);
-    }
+    // TODO: get sort from params.
+    const r = await searchEngine.query(term, selectedFacets, pageSize, page, sort);
+    let items = r.results;
+    const facetsResults = r.facetsResults;
+    const total = r.total;
+    items = await this.normalize(items);
 
     this.setState({
-      query,
+      term,
       items,
+      sort,
+      total,
+      page,
       selectedFacets,
       facetsResults,
-      index,
-      searchEngine,
       show: false
     });
   }
 
+  /**
+   * Maps search results to something like a familiar schema.
+   */
   async normalize(items) {
     return items.map(x => {
 
@@ -115,85 +146,232 @@ class Search extends Component {
       }
 
       return item
-
-      /*let
-      return item;*/
     });
   }
 
-  async onChange(field, value) {
-    const { index, selectedFacets } = this.state;
-    const searchType = 'simpleSearch';
-    const searchEngine = new search[searchType]();
-    const values = await searchEngine.query(value, selectedFacets, this.facets, index);
-    const facetsResults = await searchEngine.loadFacets(this.facets, values);
-    const items = await this.normalize(values);
-    this.setState({query: value, items, facetsResults});
+  async facetToggleShow(facet) {
+    let updatedFacet = facet;
+    updatedFacet.showAll = !updatedFacet.showAll;
+
+    this.setState({
+      facet: {
+        ...this.state.access,
+        updatedFacet
+      }
+    });
   }
 
-  relevanceUpdate(event) {
-    const { items, searchEngine } = this.state;
-    const change = event.target.value;
-    const sorted = searchEngine.sort(items, change);
-    this.setState({items: sorted, searchEngine});
+  async facetChange(e) {
+    const { selectedFacets, searchEngine, page, pageSize, term, sort } = this.state;
+    const facetType = e.target.name;
+    const facetValue = e.target.value;
+    const active = e.target.checked;
+    let updatedFacets = selectedFacets.slice();
+    if (active === true) {
+      updatedFacets.push([facetType, facetValue]);
+    }
+    else {
+      updatedFacets = selectedFacets.filter(facet => facet[1] !== facetValue);
+    }
+    const r = await searchEngine.query(term, updatedFacets, pageSize, page, sort);
+    const total = r.total;
+    const facetsResults = r.facetsResults
+    const items = await this.normalize(r.results);
+    this.setState({term, total, items, facetsResults, selectedFacets: updatedFacets});
+  }
+
+  async termChange(event) {
+    const term = event.target.value;
+    const { selectedFacets, searchEngine, page, pageSize, sort } = this.state;
+    const r = await searchEngine.query(term, selectedFacets, pageSize, page, sort);
+    const total = r.total;
+    const facetsResults = r.facetsResults
+    const items = await this.normalize(r.results);
+    this.setState({term, total, items, facetsResults});
+  }
+
+  async sortChange(event) {
+    const { term, selectedFacets, searchEngine, page, pageSize } = this.state;
+    const sort = event.target.value;
+    const r = await searchEngine.query(term, selectedFacets, pageSize, page, sort);
+    const items = await this.normalize(r.results);
+    const urlParams = {
+      term,
+      selectedFacets,
+      page,
+      sort
+    }
+    const url = this.composeUrlParams(urlParams);
+    this.props.history.push(url);
+    this.setState({items, sort});
+  }
+
+  async handlePageChange(page) {
+    const { term, selectedFacets, sort, searchEngine, pageSize } = this.state;
+    const r = await searchEngine.query(term, selectedFacets, pageSize, page, sort);
+    const items = await this.normalize(r.results);
+    const urlParams = {
+      term,
+      selectedFacets,
+      page,
+      sort
+    }
+    const url = this.composeUrlParams(urlParams);
+    this.props.history.push(url);
+    this.setState({items, page});
+  }
+
+  qOrAnd(bool) {
+    if (bool) {
+      return '?'
+    }
+    return '&'
+  }
+
+  composeUrlParams(params) {
+    let url = '/search';
+    let first = true;
+    if (params.term) {
+      url = `${url}?q=${params.term}`;
+      first = false;
+    }
+    if (params.selectedFacets.length > 0) {
+      params.selectedFacets.forEach((facet) => {
+        url = `${url}${this.qOrAnd(first)}${facet[0]}=${facet[1]}`;
+        first = false;
+      });
+    }
+    if (params.page) {
+      url = `${url}${this.qOrAnd(first)}page=${params.page}`;
+      first = false;
+    }
+    if (params.sort !== 'alpha') {
+      url = `${url}${this.qOrAnd(first)}sort=${params.sort}`;
+    }
+    return url;
+  }
+
+  async handlePageSizeChange(event) {
+    const { term, selectedFacets, searchEngine, page, sort } = this.state;
+    const pageSize = parseInt(event.target.value);
+    const r = await searchEngine.query(term, selectedFacets, pageSize, page, sort);
+    const items = await this.normalize(r.results);
+    const urlParams = {
+      term,
+      selectedFacets,
+      page,
+      sort
+    }
+    const url = this.composeUrlParams(urlParams);
+    this.props.history.push(url);
+    this.setState({items, pageSize});
   }
 
   componentDidMount() {
-    if (!this.state.index) {
+    if (!this.state.searchEngine) {
       this.fetchData();
     }
   }
 
-  facetCallback(e) {
-    this.setState({
-      show: true,
-      items: [{
-        title: "loading",
-        description: "loading"
-      }]
-    });
-    this.fetchData();
-  }
+  currentPageResults() {
+    const { total, pageSize, page } = this.state;
+
+    const currentLowestResult = 1 + ((pageSize * page) - pageSize);
+    let currentHighestResult = (pageSize * page);
+    if(currentHighestResult > total) {
+      currentHighestResult = total;
+    }
+
+    return (<div className="dataset-results-count">{currentLowestResult}-{currentHighestResult} out of {total} datasets</div>)
+  };
 
   render() {
-    const { items, show, query, selectedFacets, facetsResults } = this.state;
-    const message = query ? items.length + " datasets found for " + query : items.length + " datasets";
-    const facets = this.facets;
-    const facetCallback = this.facetCallback.bind(this);
+    const { items, facets, sort, show, total, pageSize, term, selectedFacets, facetsResults, page } = this.state;
+    const message = term ? `${total} datasets found for ${term}` : `${total} datasets`;
+    const facetChange = this.facetChange.bind(this);
+    const facetToggleShow = this.facetToggleShow.bind(this);
     const facetListProps = {
-      query,
+      term,
+      sort,
       facets,
       facetsResults,
       selectedFacets,
-      facetCallback,
+      facetCallback: facetChange,
+      toggleAllCallback: facetToggleShow,
       Link,
       url: "search"
     };
 
     return (
       <>
-
-        <div className="search-page containter-fluid m-5">
+        <Navbar className="sa"/>
+        <SearchWrapper className="search-page containter-fluid m-5">
+          <div className="row">
+            <PageHeader title="Datasets" />
+          </div>
           <div className="row">
             <div className="results-list col-md-9 col-sm-12 p-5">
-              <InputLarge style={{border: "1px solid #ced4da"}} onChange={this.onChange.bind(this)} value={query} facets={selectedFacets} />
+              <StyledSearchInput
+                label="Dataset Search Filter"
+                labelId="dataset_search_filter_label"
+                labelClassName="sr-only"
+                id="search"
+                ariaLabel="Dataset Search Filter"
+                name="dataset_search_filter"
+                placeholder="Type your search term here...e.g. physician quality, medicare spending..."
+                onChange={this.termChange.bind(this)}
+              />
               <Loader hideContentOnLoad backgroundStyle={{backgroundColor: "#f9fafb"}} foregroundStyle={{backgroundColor: "#f9fafb"}} show={show} message={<LoadingSpin width={"3px"} primaryColor={"#007BBC"}/>}>
-                <SearchList link={Link} message={message} items={items} />
+                <SearchList items={items} message={message} downloadTitle={'Download CSV'} />
+                <Wrapper className="pagination-container">
+                  {this.currentPageResults()}
+                  <Select
+                    aria-label="Results per page"
+                    defaultValue={10}
+                    size="medium"
+                    name="results_per_page"
+                    onChange={this.handlePageSizeChange.bind(this)}
+                  >
+                    {[5,10,15,20,25,30,35,40,45,50].map(el => (
+                      <option value={el}>{`${el} per page`}</option>
+                    ))
+                    }
+                  </Select>
+                  <Pagination
+                    hideDisabled
+                    activePage={page}
+                    itemsCountPerPage={pageSize}
+                    totalItemsCount={total}
+                    pageRangeDisplayed={5}
+                    onChange={this.handlePageChange.bind(this)}
+                  />
+                </Wrapper>
               </Loader>
             </div>
-            <div className="col-md-3 col-sm-12 p-5">
-              <select className="form-control input-sm" onChange={this.relevanceUpdate.bind(this)}>
-                <option value="relevance">Relevance</option>
-                <option value="date">Date</option>
-                <option value="alpha">Alphabetical</option>
-              </select>
-              <FacetList {... facetListProps} />
+            <div className="search-sidebar col-md-3 col-sm-12 p-5">
+              <div className="search-sidebar-options ds-u-radius">
+                <FormLabel className="search-sidebar-label" for="search_sort_change">Sort by</FormLabel>
+                <Select
+                  aria-label="Search Sort Change"
+                  defaultValue="1"
+                  name="search_sort_change"
+                  className="form-control input-sm"
+                  onChange={this.sortChange.bind(this)}
+                >
+                  <option value="relevance">Relevance</option>
+                  <option value="date">Date</option>
+                  <option value="alpha">Alphabetical</option>
+                </Select>
+              </div>
+              <div className="search-sidebar-options ds-u-radius">
+                <FacetList {... facetListProps} />
+              </div>
             </div>
           </div>
-        </div>
+        </SearchWrapper>
       </>
     );
   }
 }
 
-export default Search;
+export default withRouter(Search);

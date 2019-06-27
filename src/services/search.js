@@ -1,5 +1,4 @@
-import backend from './backend';
-import elasticlunr from 'elasticlunr';
+import lunr from 'lunr';
 
 //import elasticsearch from 'elasticsearch';
 
@@ -8,46 +7,147 @@ class Search {
     return {};
   }
 
-  async resultCount() {}
+ /**
+   * Queries the records.
+   *
+   * @param {string} term - Query string to search with.
+   * @param {array | string} fields - Array of arrays, [field, value] to
+   * search through or a single string.
+   * facets.
+   * @param {number} pageSize - Number of results to return.
+   * @param {number} page - The offset of results to return.
+   * @param {array} sort - An array of sorts [field, sortType].
+   *
+   * @return {object}
+   *  Object with {
+   *    time: query time (number)
+   *    total: total number of results (number)
+   *    error: errors (boolean)
+   *    errorMessage: error message (string)
+   *    results: array of results (array)
+   *  Array of object results.
+   */
+  async query(term = null, fields = null, pageSize = null, page = null, sort = null) {}
 
-  async query() {}
-}
+  /**
+   * Validates methods for funcitons.
+   */
+  static validate(items, types) {}
 
-export class elasticLunr extends Search {
-  async init() {
-    const { data } = await backend.get(`/search-index.json`);
-    const index = elasticlunr.Index.load(data);
-    return index;
+  static querObjDefaults () {
+    return {
+      time: null,
+      total: null,
+      error: false,
+      errorMessage: "",
+      results: []
+    }
   }
 
-  async query(query, selectedFacets, facets, index) {
-    const items = index.search(query, {expand: true});
-    return items;
+  static error(message) {
+    return {errorMessage: `Error ${message}`, error: true};
+  }
+
+}
+
+export class Lunr extends Search {
+  async init(data, facets = null) {
+    this.facets = facets;
+    this.index = lunr.Index.load(data);
+  }
+
+  async query(term = null, fields = null, pageSize = null, page = null, sort = null) {
+		return this.index.search(term);
   }
 
   async resultCount(results) {
     return results.length;
   }
 
-  async getAll(index) {
-    const docs = index.documentStore.docs;
-    const items = Object.keys(docs).map(function(index) {
-      var item = {
-        doc: docs[index],
-        ref: index,
-        score: 1
-      }
-      return item;
-    });
-    return items;
-  }
 
 }
 
 export class simpleSearch extends Search {
-  async init() {
-    const { data } = await backend.get(`/search-index.json`);
-    return data;
+
+  async query(term = null, fields = null, pageSize = null, page = null, sort = null) {
+    const start = performance.now();
+    let fieldsToReturn = null;
+    let where = [];
+    let queried = [];
+    let paged = [];
+    let sorted = [];
+
+    if (fields) {
+      fieldsToReturn = Object.keys(fields).map(key => fields[key]);
+    }
+    if (fields && fields.length > 0) {
+      fields.forEach((field) => {
+        let key = field[0];
+        let value = field[1];
+        where = this.index.filter((item) => {
+          const facetValue = this.getFacetValue(item.doc, key, this.facets);
+          if (facetValue === value) {
+            return true;
+          }
+          else if (Array.isArray(facetValue) && facetValue.indexOf(value) > -1) {
+            return true;
+          }
+          if (key in item.doc) {
+            if (item.doc[key] === value) {
+              return true;
+            }
+            else if (Array.isArray(item.doc[key])) {
+              if (item.doc[key].indexOf(value) > -1) {
+                return true;
+              }
+            }
+          }
+          return false;
+        });
+      });
+    }
+    else {
+      where = this.index;
+    }
+    if (term) {
+      queried = where.reduce((acc, doc) => {
+        const haystack = JSON.stringify(doc.doc);
+        const needleRegExp = new RegExp(term.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), "i");
+        const result = needleRegExp.test(haystack);
+        if (result) {
+          acc.push(doc);
+        }
+        return acc;
+      }, []);
+    }
+    else {
+      queried = where;
+    }
+    const total = queried.length;
+    const facetsResults = this.facets ? await this.loadFacets(queried, this.facets) : [];
+    sorted = this.sort(sort, queried);
+    const offset = (page - 1) * pageSize;
+    paged = paged && pageSize ? sorted.slice(offset, offset + pageSize) : sorted;
+
+    const results = paged;
+    const end = performance.now();
+    const time = end - start;
+    const error = false;
+    return {
+      time,
+      facetsResults,
+      total,
+      error,
+      // TODO: Only return selected fields.
+      fields: fieldsToReturn,
+      results
+    }
+
+  }
+
+  async init(data, facets = null) {
+    this.facets = facets;
+    this.index = data;
   }
 
   async getAll(index) {
@@ -64,21 +164,21 @@ export class simpleSearch extends Search {
       let current = pieces.shift()
 
       if (current === '*') {
-       if(Array.isArray(doc)) {
-         let values = []
-         let i
+        if (Array.isArray(doc)) {
+          let values = []
+          let i
 
-         let join = pieces.join('.')
+          let join = pieces.join('.')
 
-         for (i = 0; i < doc.length; i++) {
-           values = values.concat(this.getFacetValueHelper(doc, i + "." + join));
-         }
+            for (i = 0; i < doc.length; i++) {
+            values = values.concat(this.getFacetValueHelper(doc, i + "." + join));
+          }
 
-         return values;
-       }
-       else {
-         return [];
-       }
+          return values;
+        }
+        else {
+          return [];
+        }
       }
 
       if (doc[current] !== undefined) {
@@ -131,14 +231,14 @@ export class simpleSearch extends Search {
     return facetsTotal;
   }
 
-  async loadFacets(facets, results) {
+  async loadFacets(items, facets) {
     const that = this;
-    const pageSizeFacets = 10;
-    const facetsTotal = that.getFacetInitialTotal(facets, results);
+    const pageSizeFacets = 100;
+    const facetsTotal = that.getFacetInitialTotal(facets, items);
 
     var facetsResults = {};
 
-    for (var facet in facets) {
+    for (var facet in this.facets) {
       facetsResults[facet] = {};
       if (facetsTotal[facet]) {
         facetsTotal[facet].forEach((i) => { // eslint-disable-line no-loop-func
@@ -149,7 +249,7 @@ export class simpleSearch extends Search {
 
     // TODO: separate into func.
     let facetsSorted = {};
-    for (var fact in facets) {
+    for (var fact in this.facets) {
       facetsSorted[fact] = [];
       facetsSorted[fact] = Object.entries(facetsResults[fact]).sort((a,b) => {
         return (a[1] > b[1]) ? -1 : ((b[1] > a[1]) ? 1 : 0)
@@ -164,16 +264,10 @@ export class simpleSearch extends Search {
     return facetsPaged;
   }
 
-
-  sort(index, sort) {
+  sort(sort, items) {
     const that = this;
-    const items = index;
     if (sort === "date") {
       return items.sort(that.dateCompare);
-    }
-    else if (sort === "relavance") {
-      //return items.sort(that.relatCompare);
-      return items;
     }
     else if (sort === "alpha") {
       return items.sort(that.alphaCompare);
@@ -190,54 +284,19 @@ export class simpleSearch extends Search {
   }
 
   dateCompare(a,b) {
-    if (a.modified > b.modified)
+    if (a.doc.modified > b.doc.modified)
       return -1;
-    if (a.modified < b.modified)
+    if (a.doc.modified < b.doc.modified)
       return 1;
     return 0;
   }
 
   alphaCompare(a,b) {
-    if (a.title < b.title)
+    if (a.doc.title < b.doc.title)
       return -1;
-    if (a.title > b.title)
+    if (a.doc.title > b.doc.title)
       return 1;
     return 0;
-  }
-
-  async query(query, selectedFacets, facets, index) {
-    let faceted = [];
-    const that = this;
-    if (selectedFacets && selectedFacets.length > 0) {
-      selectedFacets.forEach((selectedFacet) => {
-        let term = selectedFacet[0];
-        let value = selectedFacet[1];
-        faceted = index.filter((item) => {
-          let facetValue = that.getFacetValue(item.doc, term, facets);
-          if (Array.isArray(facetValue)) {
-            if (Object.values(facetValue).indexOf(value) > -1) {
-              return true;
-            }
-          }
-          else if (facetValue === value) {
-            return true;
-          }
-          return false;
-        });
-      });
-    }
-    else {
-      faceted = index;
-    }
-    return faceted.reduce((acc, doc) => {
-      const haystack = JSON.stringify(doc.doc);
-      const needleRegExp = new RegExp(query.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), "i");
-      const result = needleRegExp.test(haystack);
-      if (result) {
-        acc.push(doc);
-      }
-      return acc;
-    }, []);
   }
 
 
@@ -281,7 +340,6 @@ export class elasticSearch extends Search {
     });
       return items;
     }, function (error) {
-      console.trace(error.message);
     });
   }
   *resultCount(results) {
@@ -293,7 +351,8 @@ export class elasticSearch extends Search {
 const search = {
 //  elasticSearch,
   simpleSearch,
-  elasticLunr,
+  Lunr,
 };
 
 export default search;
+
