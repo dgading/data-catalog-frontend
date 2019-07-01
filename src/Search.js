@@ -57,10 +57,10 @@ class Search extends Component {
 
   async initSearch() {
     const { facets } = this.state;
-    const searchType = 'simpleSearch';
+    const searchType = 'Lunr';
     const searchEngine = new search[searchType]();
-    // Simple Search service doesn't query directly.
     const { data } = await backend.get("/search-index.json");
+    console.log(data);
     await searchEngine.init(data, facets);
     this.setState({
       searchEngine
@@ -102,19 +102,19 @@ class Search extends Component {
     // TODO: get sort from params.
     const r = await searchEngine.query(term, selectedFacets, pageSize, page, sort);
     let items = r.results;
-    const facetsResults = r.facetsResults;
+//    const facetsResults = r.facetsResults;
     const total = r.total;
-    items = await this.normalize(items);
+  //  items = await this.normalize(items);
 
     this.setState({
-      term,
-      items,
-      sort,
-      total,
-      page,
-      selectedFacets,
-      facetsResults,
-      show: false
+      //term,
+//      items,
+//      sort,
+  //    total,
+    //  page,
+      //selectedFacets,
+      //facetsResults,
+    //  show: false
     });
   }
 

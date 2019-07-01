@@ -57,7 +57,8 @@ export class Lunr extends Search {
   }
 
   async query(term = null, fields = null, pageSize = null, page = null, sort = null) {
-		return this.index.search(term);
+	  let	items = this.index.search(term);
+    console.log(items);
   }
 
   async resultCount(results) {
@@ -355,4 +356,3 @@ const search = {
 };
 
 export default search;
-
