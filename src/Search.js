@@ -11,7 +11,7 @@ import Pagination from "react-js-pagination";
 import Wrapper from './theme/pagination.js'
 import { withRouter} from 'react-router-dom'
 import StyledSearchInput from './components/SearchInput';
-import SearchWrapper from './components/SearchInput';
+import SearchWrapper from './Search/Wrapper';
 import { Select, FormLabel } from '@cmsgov/design-system-core';
 import PageHeader from './components/PageHeader';
 
@@ -60,7 +60,6 @@ class Search extends Component {
     const searchType = 'Lunr';
     const searchEngine = new search[searchType]();
     const { data } = await backend.get("/search-index.json");
-    console.log(data);
     await searchEngine.init(data, facets);
     this.setState({
       searchEngine
@@ -101,20 +100,20 @@ class Search extends Component {
     }
     // TODO: get sort from params.
     const r = await searchEngine.query(term, selectedFacets, pageSize, page, sort);
-    let items = r.results;
-//    const facetsResults = r.facetsResults;
+    const results = r.results;
+    const facetsResults = r.facetsResults;
     const total = r.total;
-  //  items = await this.normalize(items);
-
+    const items = await this.normalize(results);
+    console.log("we have the items ", items);
     this.setState({
-      //term,
-//      items,
-//      sort,
-  //    total,
-    //  page,
-      //selectedFacets,
-      //facetsResults,
-    //  show: false
+      term,
+      items,
+      sort,
+      total,
+      page,
+      selectedFacets,
+      facetsResults,
+      show: false
     });
   }
 
@@ -123,29 +122,22 @@ class Search extends Component {
    */
   async normalize(items) {
     return items.map(x => {
-
-      let item = {}
-
-      if(x.hasOwnProperty('doc')){
-        item = {
-          identifier: x.doc.identifier,
-          modified: x.doc.modified,
-          description: x.doc.description,
-          theme: x.doc.theme,
-          format: x.doc.distribution,
-          title: x.doc.title,
-          ref: `/dataset/${x.doc.identifier}`,
-        }
-
-        if (x.doc.hasOwnProperty('publisher') && x.doc.publisher.hasOwnProperty('name')) {
-          item.publisher = x.doc.publisher.name
+      let item = {
+          identifier: x.identifier,
+          modified: x.modified,
+          description: x.description,
+          theme: x.theme,
+          format: x.distribution,
+          title: x.title,
+          ref: `/dataset/${x.identifier}`,
+        };
+        if (x.hasOwnProperty('publisher') && x.publisher.hasOwnProperty('name')) {
+          item.publisher = x.publisher.name;
         }
         else {
-          item.publisher = ' '
+          item.publisher = ' ';
         }
-      }
-
-      return item
+      return item;
     });
   }
 
@@ -290,6 +282,7 @@ class Search extends Component {
     const message = term ? `${total} datasets found for ${term}` : `${total} datasets`;
     const facetChange = this.facetChange.bind(this);
     const facetToggleShow = this.facetToggleShow.bind(this);
+    console.log(facetsResults);
     const facetListProps = {
       term,
       sort,
@@ -301,7 +294,6 @@ class Search extends Component {
       Link,
       url: "search"
     };
-
     return (
       <>
         <Navbar className="sa"/>
@@ -327,13 +319,13 @@ class Search extends Component {
                   {this.currentPageResults()}
                   <Select
                     aria-label="Results per page"
-                    defaultValue={10}
+                    defaultValue={"10"}
                     size="medium"
                     name="results_per_page"
                     onChange={this.handlePageSizeChange.bind(this)}
                   >
                     {[5,10,15,20,25,30,35,40,45,50].map(el => (
-                      <option value={el}>{`${el} per page`}</option>
+                      <option key={el} value={el}>{`${el} per page`}</option>
                     ))
                     }
                   </Select>

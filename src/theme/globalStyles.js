@@ -1,6 +1,6 @@
 import { createGlobalStyle } from "styled-components"
 import { css } from 'bootstrap/dist/css/bootstrap.min.css'; // eslint-disable-line no-unused-vars
-import { cms_css } from '@cmsgov/design-system-core/dist/index.css';
+//import { cms_css } from '@cmsgov/design-system-core/dist/index.css';
 import defaultTheme from "./default"
 import './fonts/Geometria/demo.css'
 
@@ -27,9 +27,9 @@ const GlobalStyles = createGlobalStyle`
         color: ${defaultTheme.linkHoverColor};
       }
     }
-    h1,h2,h3,h4,h5 { 
+    h1,h2,h3,h4,h5 {
       color: ${defaultTheme.headingColor};
-      font-family: 'Geometria W01 ExtraBold','WorkSansBold', Arial, sans-serif; 
+      font-family: 'Geometria W01 ExtraBold','WorkSansBold', Arial, sans-serif;
     }
     h1 { font-size: 3.2rem; }
     h2 { font-size: 2.8rem; } //28px
@@ -120,7 +120,7 @@ const GlobalStyles = createGlobalStyle`
       .preview-rows {
         margin-top: 13px;
       }
-      
+
       .page-size-options {
         label.ds-c-label {
           display: inline-block;
@@ -157,7 +157,7 @@ const GlobalStyles = createGlobalStyle`
     .ReactTable .rt-thead .rt-th.-sort-desc:before {
       content: '\\f063';
     }
-  
+
     @media all and (min-width: 1200px) {
       .opendata-icon-list li {
         width: 33.33%;

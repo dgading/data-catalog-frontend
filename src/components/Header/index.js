@@ -3,7 +3,7 @@ import Wrapper from './Wrapper'
 import logo from '../../assets/images/logo.svg'
 import Menu from '../Menu'
 import links from '../../assets/menu.json'
-import FAPIcon from '../FontAwesomePro'
+//import FAPIcon from '../FontAwesomePro'
 
 class Header extends Component {
 

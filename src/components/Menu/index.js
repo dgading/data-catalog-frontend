@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Wrapper from './Wrapper';
 
 class Menu extends React.PureComponent {
-  
+
   render() {
     const heading = this.props.title ? this.props.title : "";
     const direction = this.props.horizontal ? "nav-horizontal" : "";
@@ -17,7 +17,7 @@ class Menu extends React.PureComponent {
           this.props.items.map(function(item){
             return (
               <li key={item.url} role="none">
-                <a role="menu-item" href={item.url} target={item.target}>{item.label}</a>
+                <a role="menuitem" href={item.url} target={item.target}>{item.label}</a>
               </li>
             );
           })

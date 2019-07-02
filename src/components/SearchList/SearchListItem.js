@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import ItemWrapper from './ItemWrapper';
 import FAPIcon from '../../components/FontAwesomePro'
 import excerpts from 'excerpts';
@@ -8,7 +7,7 @@ const SearchListItem = ({
   title,
   modifiedDate,
   downloadTitle,
-  downloadURL, 
+  downloadURL,
   description,
   descriptionLength,
   theme,
@@ -33,7 +32,7 @@ const SearchListItem = ({
       </ul>
     );
   }
-  
+
 
   return(
     <ItemWrapper className="search-list-item">
@@ -55,7 +54,7 @@ const SearchListItem = ({
 }
 
 SearchListItem.propTypes = {
-  
+
 };
 
 export default SearchListItem;

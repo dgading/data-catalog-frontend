@@ -4,14 +4,12 @@ import {IconList} from 'interra-data-catalog-components'
 import { IconListItem } from 'interra-data-catalog-components'
 import { Hero } from 'interra-data-catalog-components'
 import Blocks from './components/Blocks'
-import StepsBlock from './components/Blocks/StepsBlock'
 import StatBlock from './components/Blocks/StatBlock'
 import backend from './services/backend';
 import Loader from 'react-loader-advanced';
 import LoadingSpin from 'react-loading-spin';
 import FeaturedDatasets from './containers/FeaturedDatasets'
 import copy from './assets/copy.json'
-import image from './assets/images/waves.jpg'
 import Navbar from './components/NavBar';
 
 class Home extends Component {

@@ -35,6 +35,7 @@ function prepareLink(term, selectedFacets, facetKey, name, sort, active = false)
 }
 
 function FacetBlocks({ term, sort, title, items, totalFacets, facetKey, selectedFacets, url, facetCallback, showAllToggle, Link, isOpen}) {
+  console.log(items);
   let content = (<ul></ul>);
   let toggleButton = null;
 
@@ -91,22 +92,25 @@ function FacetList({ term, sort, facets, selectedFacets, facetsResults, facetCal
   let content = (<div></div>);
 
   if (facets !== false) {
-    
+
     let items = [];
     for (let facet in facets) {
       items.push(facet);
     }
+    console.log(items);
     content = items.map((item) => {
-      let visibleFacets = facetsResults[item];
+      let visibleFacets = facetsResults[item] instanceof Array ? facetsResults[item] : [];
       let showAllButton = () => toggleAllCallback(facets[item]);
       if (!facets[item].showAll && visibleFacets.length > 10) {
         visibleFacets = visibleFacets.slice(0, 10);
-      } 
+      }
 
+      const totalFacets = facetsResults[item] instanceof Array ? facetsResults[item].length : 0;
+      const title = facets[item] instanceof Array ? facets[item].label : "";
       const facetListProps = {
-        title: facets[item].label,
+        title,
         items: visibleFacets,
-        totalFacets: facetsResults[item].length,
+        totalFacets,
         selectedFacets,
         facetKey: item,
         term,

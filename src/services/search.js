@@ -53,12 +53,47 @@ class Search {
 export class Lunr extends Search {
   async init(data, facets = null) {
     this.facets = facets;
-    this.index = lunr.Index.load(data);
+    this.index = lunr.Index.load(data.index);
+    this.docs = data.docs;
   }
 
   async query(term = null, fields = null, pageSize = null, page = null, sort = null) {
-	  let	items = this.index.search(term);
-    console.log(items);
+    const start = performance.now();
+    let fieldsToReturn = null;
+    //let where = [];
+    //let queried = [];
+    //let paged = [];
+    //let sorted = [];
+
+    if (fields) {
+      fieldsToReturn = Object.keys(fields).map(key => fields[key]);
+    }
+
+	  const	searchResults = this.index.search(term);
+    const items = await this.mapResults(searchResults);
+    const facetsResults = {};
+    const total = searchResults.length;
+    const results = items;
+    const end = performance.now();
+    const time = end - start;
+    const error = {};
+    return {
+      time,
+      facetsResults,
+      total,
+      error,
+      // TODO: Only return selected fields.
+      fields: fieldsToReturn,
+      results
+    }
+  }
+
+  async mapResults(items) {
+    return items.map((item) => {
+      let result = this.docs.find((doc) => item.ref === doc.ref);
+      const doc = Object.assign(result.doc, item);
+      return doc;
+    });
   }
 
   async resultCount(results) {
