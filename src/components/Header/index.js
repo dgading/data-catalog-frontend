@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 import Wrapper from './Wrapper'
 import logo from '../../assets/images/logo.svg'
-import Menu from '../Menu'
-import links from '../../assets/menu.json'
 
 class Header extends Component {
 
@@ -16,8 +14,8 @@ class Header extends Component {
               <img className="logo" alt="logo" src={logo}/>
             </a>
           </div>
-          <div className="col-lg-5 col-md-12 dkan-link-container">
-            <Menu className="header-menu" items={links.header} horizontal />
+          <div className="col-lg-5 col-md-12">
+            
           </div>
         </div>
       </Wrapper>

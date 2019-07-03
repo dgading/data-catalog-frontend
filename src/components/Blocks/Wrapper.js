@@ -8,9 +8,6 @@ const Wrapper = styled.div`
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: space-evenly;
-    max-width: 1040px;
-    margin-left: auto;
-    margin-right: auto;
     h2,
     h3 {
       margin-top: 0;

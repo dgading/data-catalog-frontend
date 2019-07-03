@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import {IconList} from 'interra-data-catalog-components'
-import { IconListItem } from 'interra-data-catalog-components'
+import IconListItem from './components/IconListItem'
 import { Hero } from 'interra-data-catalog-components'
 import Blocks from './components/Blocks'
 import StatBlock from './components/Blocks/StatBlock'
@@ -39,6 +39,8 @@ class Home extends Component {
 
   render() {
     const { items, show } = this.state;
+    console.log('items: ', items);
+
 
     return (
       <div className="home-page">

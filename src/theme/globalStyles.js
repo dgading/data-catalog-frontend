@@ -143,7 +143,12 @@ const GlobalStyles = createGlobalStyle`
     .ReactTable .rt-thead .rt-th.-sort-desc:before {
       content: '\\f063';
     }
-
+  
+    @media screen and (max-width: 768px) {
+      .hero .block {
+        max-width: 100%;
+      }
+    }
     @media all and (min-width: 1200px) {
       .opendata-icon-list li {
         width: 33.33%;
