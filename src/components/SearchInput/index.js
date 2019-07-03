@@ -28,7 +28,7 @@ class SearchInput extends React.Component {
   }
   handleString(e) {
     e.preventDefault();
-    this.setState({ 
+    this.setState({
       textEntered: e.target.value ? true : false,
       value: e.target.value,
       query: e.target.value
@@ -36,7 +36,7 @@ class SearchInput extends React.Component {
   }
   handleReset(e) {
     e.preventDefault();
-    this.setState({ 
+    this.setState({
       query: null,
       textEntered: false,
       value: ''
@@ -48,7 +48,7 @@ class SearchInput extends React.Component {
     const {query} = this.state;
     const placeholder = this.props.placeholder ? this.props.placeholder : "Search";
     const className = this.props.className ? this.props.className : "";
-    
+
     let reset = this.state.textEntered ? <Button type="reset" id="reset" onClick={ this.handleReset }><FAPIcon icon="times" height="28" width="28"/></Button> : false;
 
     if (this.state.navigate === true) {

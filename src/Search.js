@@ -10,11 +10,10 @@ import Navbar from './components/NavBar';
 import Pagination from "react-js-pagination";
 import Wrapper from './theme/pagination.js'
 import { withRouter} from 'react-router-dom'
-import StyledSearchInput from './components/SearchInput';
+import SearchInput from './Search/SearchInput';
 import SearchWrapper from './Search/Wrapper';
 import { Select, FormLabel } from '@cmsgov/design-system-core';
 import PageHeader from './components/PageHeader';
-
 
 const InitialState = {
     items: [{
@@ -35,7 +34,7 @@ const InitialState = {
     facets: {
       "theme": {
         "label": "Topics",
-        "field": "theme.0.title",
+        "field": "theme.*.title",
         "showAll": false
       },
       "keyword": {
@@ -104,7 +103,6 @@ class Search extends Component {
     const facetsResults = r.facetsResults;
     const total = r.total;
     const items = await this.normalize(results);
-    console.log("we have the items ", items);
     this.setState({
       term,
       items,
@@ -282,7 +280,6 @@ class Search extends Component {
     const message = term ? `${total} datasets found for ${term}` : `${total} datasets`;
     const facetChange = this.facetChange.bind(this);
     const facetToggleShow = this.facetToggleShow.bind(this);
-    console.log(facetsResults);
     const facetListProps = {
       term,
       sort,
@@ -303,7 +300,7 @@ class Search extends Component {
           </div>
           <div className="row">
             <div className="results-list col-md-9 col-sm-12 p-5">
-              <StyledSearchInput
+              <SearchInput
                 label="Dataset Search Filter"
                 labelId="dataset_search_filter_label"
                 labelClassName="sr-only"

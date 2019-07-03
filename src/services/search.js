@@ -48,156 +48,43 @@ class Search {
     return {errorMessage: `Error ${message}`, error: true};
   }
 
-}
+  async loadFacets(items, facets) {
+    const that = this;
+    const pageSizeFacets = 100;
+    const facetsTotal = that.getFacetInitialTotal(facets, items);
 
-export class Lunr extends Search {
-  async init(data, facets = null) {
-    this.facets = facets;
-    this.index = lunr.Index.load(data.index);
-    this.docs = data.docs;
-  }
+    var facetsResults = {};
 
-  async query(term = null, fields = null, pageSize = null, page = null, sort = null) {
-    const start = performance.now();
-    let fieldsToReturn = null;
-    //let where = [];
-    //let queried = [];
-    //let paged = [];
-    //let sorted = [];
-
-    if (fields) {
-      fieldsToReturn = Object.keys(fields).map(key => fields[key]);
-    }
-
-	  const	searchResults = this.index.search(term);
-    const items = await this.mapResults(searchResults);
-    const facetsResults = {};
-    const total = searchResults.length;
-    const results = items;
-    const end = performance.now();
-    const time = end - start;
-    const error = {};
-    return {
-      time,
-      facetsResults,
-      total,
-      error,
-      // TODO: Only return selected fields.
-      fields: fieldsToReturn,
-      results
-    }
-  }
-
-  async mapResults(items) {
-    return items.map((item) => {
-      let result = this.docs.find((doc) => item.ref === doc.ref);
-      const doc = Object.assign(result.doc, item);
-      return doc;
-    });
-  }
-
-  async resultCount(results) {
-    return results.length;
-  }
-
-
-}
-
-export class simpleSearch extends Search {
-
-  async query(term = null, fields = null, pageSize = null, page = null, sort = null) {
-    const start = performance.now();
-    let fieldsToReturn = null;
-    let where = [];
-    let queried = [];
-    let paged = [];
-    let sorted = [];
-
-    if (fields) {
-      fieldsToReturn = Object.keys(fields).map(key => fields[key]);
-    }
-    if (fields && fields.length > 0) {
-      fields.forEach((field) => {
-        let key = field[0];
-        let value = field[1];
-        where = this.index.filter((item) => {
-          const facetValue = this.getFacetValue(item.doc, key, this.facets);
-          if (facetValue === value) {
-            return true;
-          }
-          else if (Array.isArray(facetValue) && facetValue.indexOf(value) > -1) {
-            return true;
-          }
-          if (key in item.doc) {
-            if (item.doc[key] === value) {
-              return true;
-            }
-            else if (Array.isArray(item.doc[key])) {
-              if (item.doc[key].indexOf(value) > -1) {
-                return true;
-              }
-            }
-          }
-          return false;
+    for (var facet in this.facets) {
+      facetsResults[facet] = {};
+      if (facetsTotal[facet]) {
+        facetsTotal[facet].forEach((i) => { // eslint-disable-line no-loop-func
+          facetsResults[facet][i] = (facetsResults[facet][i]||0)+1;
         });
+      }
+    };
+
+    // TODO: separate into func.
+    let facetsSorted = {};
+    for (var fact in this.facets) {
+      facetsSorted[fact] = [];
+      facetsSorted[fact] = Object.entries(facetsResults[fact]).sort((a,b) => {
+        return (a[1] > b[1]) ? -1 : ((b[1] > a[1]) ? 1 : 0)
       });
-    }
-    else {
-      where = this.index;
-    }
-    if (term) {
-      queried = where.reduce((acc, doc) => {
-        const haystack = JSON.stringify(doc.doc);
-        const needleRegExp = new RegExp(term.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), "i");
-        const result = needleRegExp.test(haystack);
-        if (result) {
-          acc.push(doc);
-        }
-        return acc;
-      }, []);
-    }
-    else {
-      queried = where;
-    }
-    const total = queried.length;
-    const facetsResults = this.facets ? await this.loadFacets(queried, this.facets) : [];
-    sorted = this.sort(sort, queried);
-    const offset = (page - 1) * pageSize;
-    paged = paged && pageSize ? sorted.slice(offset, offset + pageSize) : sorted;
+    };
 
-    const results = paged;
-    const end = performance.now();
-    const time = end - start;
-    const error = false;
-    return {
-      time,
-      facetsResults,
-      total,
-      error,
-      // TODO: Only return selected fields.
-      fields: fieldsToReturn,
-      results
-    }
-
-  }
-
-  async init(data, facets = null) {
-    this.facets = facets;
-    this.index = data;
-  }
-
-  async getAll(index) {
-    return index;
-  }
-
-  async resultCount(results) {
-    return results.length;
+    // TODO:
+    let facetsPaged = {};
+    for (var fac in facets) {
+      facetsPaged[fac] = facetsSorted[fac].slice(0, pageSizeFacets);
+    };
+    return facetsPaged;
   }
 
   getFacetValueHelper(doc, field) {
     if ((typeof doc) == "object") {
-      let pieces = field.split('.')
-      let current = pieces.shift()
+      let pieces = field.split('.');
+      let current = pieces.shift();
 
       if (current === '*') {
         if (Array.isArray(doc)) {
@@ -247,19 +134,19 @@ export class simpleSearch extends Search {
     let facetsTotal = [];
     results.forEach((result) => {
       for (var facet in facets) {
-        const docR = that.getFacetValue(result.doc, facet, facets);
+        const doc = that.getFacetValue(result, facet, facets);
 
         facetsTotal[facet] = !facetsTotal[facet] ? [] : facetsTotal[facet];
         // We want to flatten the results so there is one big array instead of a
         // combo of array results.
-        if (Array.isArray(docR)) {
-          docR.forEach((item, x) => { // eslint-disable-line no-loop-func
+        if (Array.isArray(doc)) {
+          doc.forEach((item, x) => { // eslint-disable-line no-loop-func
             facetsTotal[facet].push(item);
           });
         }
         else {
-          if (docR && Object.keys(docR).length !== 0 ) {
-            facetsTotal[facet].push(docR);
+          if (doc && Object.keys(doc).length !== 0 ) {
+            facetsTotal[facet].push(doc);
           }
         }
       }
@@ -267,38 +154,6 @@ export class simpleSearch extends Search {
     return facetsTotal;
   }
 
-  async loadFacets(items, facets) {
-    const that = this;
-    const pageSizeFacets = 100;
-    const facetsTotal = that.getFacetInitialTotal(facets, items);
-
-    var facetsResults = {};
-
-    for (var facet in this.facets) {
-      facetsResults[facet] = {};
-      if (facetsTotal[facet]) {
-        facetsTotal[facet].forEach((i) => { // eslint-disable-line no-loop-func
-          facetsResults[facet][i] = (facetsResults[facet][i]||0)+1;
-        });
-      }
-    };
-
-    // TODO: separate into func.
-    let facetsSorted = {};
-    for (var fact in this.facets) {
-      facetsSorted[fact] = [];
-      facetsSorted[fact] = Object.entries(facetsResults[fact]).sort((a,b) => {
-        return (a[1] > b[1]) ? -1 : ((b[1] > a[1]) ? 1 : 0)
-      });
-    };
-
-    // TODO:
-    let facetsPaged = {};
-    for (var fac in facets) {
-      facetsPaged[fac] = facetsSorted[fac].slice(0, pageSizeFacets);
-    };
-    return facetsPaged;
-  }
 
   sort(sort, items) {
     const that = this;
@@ -307,6 +162,9 @@ export class simpleSearch extends Search {
     }
     else if (sort === "alpha") {
       return items.sort(that.alphaCompare);
+    }
+    else if (sort === "relevance") {
+      return items.sort(that.relatCompare);
     }
     return items;
   }
@@ -320,21 +178,196 @@ export class simpleSearch extends Search {
   }
 
   dateCompare(a,b) {
-    if (a.doc.modified > b.doc.modified)
+    if (a.modified > b.modified)
       return -1;
-    if (a.doc.modified < b.doc.modified)
+    if (a.modified < b.modified)
       return 1;
     return 0;
   }
 
   alphaCompare(a,b) {
-    if (a.doc.title < b.doc.title)
+    if (a.title < b.title)
       return -1;
-    if (a.doc.title > b.doc.title)
+    if (a.title > b.title)
       return 1;
     return 0;
   }
 
+}
+
+export class Lunr extends Search {
+  async init(data, facets = null) {
+    this.facets = facets;
+    this.index = lunr.Index.load(data.index);
+    this.docs = data.docs;
+  }
+
+  async query(term = null, fields = null, pageSize = null, page = null, sort = null) {
+    const start = performance.now();
+    let where = [];
+    let paged = [];
+    let sorted = [];
+
+    const	searchResults = term ? this.index.search(`*${term}*`) : this.index.search("");
+    const items = await this.mapResults(searchResults);
+
+    if (fields && fields.length > 0) {
+      fields.forEach((field) => {
+        let key = field[0];
+        let value = field[1];
+        where = items.filter((item) => {
+          const facetValue = this.getFacetValue(item, key, this.facets);
+          if (facetValue === value) {
+            return true;
+          }
+          else if (Array.isArray(facetValue) && facetValue.indexOf(value) > -1) {
+            return true;
+          }
+          if (key in item) {
+            if (item[key] === value) {
+              return true;
+            }
+            else if (Array.isArray(item[key])) {
+              if (item[key].indexOf(value) > -1) {
+                return true;
+              }
+            }
+          }
+          return false;
+        });
+      });
+    }
+    else {
+      where = items;
+    }
+
+    sorted = this.sort(sort, where);
+    const offset = (page - 1) * pageSize;
+    paged = paged && pageSize ? sorted.slice(offset, offset + pageSize) : sorted;
+
+    const facetsResults = this.facets ? await this.loadFacets(items, this.facets) : [];
+    const total = where.length;
+    const results = paged;
+    const end = performance.now();
+    const time = end - start;
+    const error = {};
+    return {
+      time,
+      facetsResults,
+      total,
+      error,
+      // TODO: Only return selected fields.
+      fields: [],
+      results
+    }
+  }
+
+  async mapResults(items) {
+    return items.map((item) => {
+      let result = this.docs.find((doc) => item.ref === doc.ref);
+      const doc = Object.assign(result.doc, item);
+      return doc;
+    });
+  }
+
+  async resultCount(results) {
+    return results.length;
+  }
+
+
+}
+
+export class simpleSearch extends Search {
+
+  async query(term = null, fields = null, pageSize = null, page = null, sort = null) {
+    const start = performance.now();
+    let fieldsToReturn = null;
+    let where = [];
+    let queried = [];
+    let paged = [];
+    let sorted = [];
+
+    if (fields) {
+      fieldsToReturn = Object.keys(fields).map(key => fields[key]);
+    }
+    if (fields && fields.length > 0) {
+      fields.forEach((field) => {
+        let key = field[0];
+        let value = field[1];
+        where = this.index.filter((item) => {
+          const facetValue = this.getFacetValue(item, key, this.facets);
+          if (facetValue === value) {
+            return true;
+          }
+          else if (Array.isArray(facetValue) && facetValue.indexOf(value) > -1) {
+            return true;
+          }
+          if (key in item) {
+            if (item[key] === value) {
+              return true;
+            }
+            else if (Array.isArray(item[key])) {
+              if (item[key].indexOf(value) > -1) {
+                return true;
+              }
+            }
+          }
+          return false;
+        });
+      });
+    }
+    else {
+      where = this.index;
+    }
+    if (term) {
+      queried = where.reduce((acc, doc) => {
+        const haystack = JSON.stringify(doc);
+        const needleRegExp = new RegExp(term.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), "i");
+        const result = needleRegExp.test(haystack);
+        if (result) {
+          acc.push(doc);
+        }
+        return acc;
+      }, []);
+    }
+    else {
+      queried = where;
+    }
+    const total = queried.length;
+
+    const facetsResults = this.facets ? await this.loadFacets(queried, this.facets) : [];
+    sorted = this.sort(sort, queried);
+    const offset = (page - 1) * pageSize;
+    paged = paged && pageSize ? sorted.slice(offset, offset + pageSize) : sorted;
+
+    const results = paged;
+    const end = performance.now();
+    const time = end - start;
+    const error = false;
+    return {
+      time,
+      facetsResults,
+      total,
+      error,
+      // TODO: Only return selected fields.
+      fields: fieldsToReturn,
+      results
+    }
+
+  }
+
+  async init(data, facets = null) {
+    this.facets = facets;
+    this.index = data.docs.map((item) => item.doc);
+  }
+
+  async getAll(index) {
+    return index;
+  }
+
+  async resultCount(results) {
+    return results.length;
+  }
 
 }
 /**
