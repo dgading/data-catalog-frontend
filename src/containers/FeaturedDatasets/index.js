@@ -47,7 +47,7 @@ class FeaturedDatasets extends Component {
   render() {
     const { items } = this.state;
     return (
-      <Wrapper className='container-fluid container-front'>
+      <Wrapper className='container-fluid'>
         <h2 className="section-title">Featured Datasets</h2>
         <div className="section-content">
           <SearchList items={ items } />

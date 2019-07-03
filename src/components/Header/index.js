@@ -3,7 +3,6 @@ import Wrapper from './Wrapper'
 import logo from '../../assets/images/logo.svg'
 import Menu from '../Menu'
 import links from '../../assets/menu.json'
-//import FAPIcon from '../FontAwesomePro'
 
 class Header extends Component {
 
@@ -13,13 +12,11 @@ class Header extends Component {
       <Wrapper className="container-fluid">
         <div className="branding row">
           <div className="col-lg-7 col-md-12">
-            <div className="dkan-link-container">
-              <a href="https://getdkan.com" title="getdkan.com">
-                <img className="logo" alt="logo" src={logo}/>
-              </a>
-            </div>
+            <a href="/" title="getdkan.com" className="logo">
+              <img className="logo" alt="logo" src={logo}/>
+            </a>
           </div>
-          <div className="col-lg-5 col-md-12">
+          <div className="col-lg-5 col-md-12 dkan-link-container">
             <Menu className="header-menu" items={links.header} horizontal />
           </div>
         </div>

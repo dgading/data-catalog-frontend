@@ -11,6 +11,7 @@ import LoadingSpin from 'react-loading-spin';
 import FeaturedDatasets from './containers/FeaturedDatasets'
 import copy from './assets/copy.json'
 import Navbar from './components/NavBar';
+//import Navbar from 'interra-data-catalog-components';
 
 class Home extends Component {
 
@@ -41,13 +42,13 @@ class Home extends Component {
 
     return (
       <div className="home-page">
-        <Navbar className="sa"/>
+        <Navbar />
 
         <Hero title={copy.hero[0].title} intro={copy.hero[0].intro} />
         <Loader className="icon-list-container" hideContentOnLoad backgroundStyle={{backgroundColor: "#f9fafb"}} foregroundStyle={{backgroundColor: "#f9fafb"}} show={show} message={<LoadingSpin width={"3px"} size="30px" primaryColor={"#007BBC"}/>}>
           <IconList items={ items } component={IconListItem} paneTitle="Dataset Topics" className="opendata-icon-list" />
         </Loader>
-        <Blocks items={copy.stats} component={StatBlock} type="StatBlock" />
+        <Blocks items={copy.stats} component={StatBlock} className="StatBlock" />
         <Loader hideContentOnLoad backgroundStyle={{backgroundColor: "#f9fafb"}} foregroundStyle={{backgroundColor: "#f9fafb"}} show={show} message={<LoadingSpin width={"3px"} size="30px" primaryColor={"#007BBC"}/>}>
           {/* <FeaturedDatasets /> */}
         </Loader>

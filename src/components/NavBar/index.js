@@ -1,12 +1,12 @@
 import React from 'react';
 import { NavLink as RRlink } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import {
   Collapse,
   Navbar,
   NavbarToggler,
   Nav,
   NavItem } from 'reactstrap';
+import PropTypes from 'prop-types';
 import Wrapper from './Wrapper';
 
 export default class NavBar extends React.Component {
@@ -25,27 +25,29 @@ export default class NavBar extends React.Component {
   }
   render() {
     return (
-      <Wrapper className="main-navigation">
-        <Navbar expand="md navbar-dark">
-          <NavbarToggler onClick={this.toggle} />
-          <Collapse isOpen={this.state.isOpen} navbar>
-            <Nav className="mr-auto">
-              <NavItem>
-                <RRlink activeClassName="active" exact to="/">Home</RRlink>
-              </NavItem>
-              <NavItem>
-                <RRlink activeClassName="active" to="/search">Datasets</RRlink>
-              </NavItem>
-              <NavItem>
-                <RRlink activeClassName="active" to="/topics">Topics</RRlink>
-              </NavItem>
-              <NavItem>
-                <RRlink activeClassName="active" to="/about">About</RRlink>
-              </NavItem>
-            </Nav>
-          </Collapse>
-        </Navbar>
-      </Wrapper>
+
+        <Wrapper className="main-navigation">
+          <Navbar expand="md navbar-dark">
+            <NavbarToggler onClick={this.toggle} />
+            <Collapse isOpen={this.state.isOpen} navbar>
+              <Nav className="mr-auto">
+                <NavItem>
+                  <RRlink activeClassName="active" exact to="/">Home</RRlink>
+                </NavItem>
+                <NavItem>
+                  <RRlink activeClassName="active" to="/search">Datasets</RRlink>
+                </NavItem>
+                <NavItem>
+                  <RRlink activeClassName="active" to="/topics">Topics</RRlink>
+                </NavItem>
+                <NavItem>
+                  <RRlink activeClassName="active" to="/about">About</RRlink>
+                </NavItem>
+              </Nav>
+            </Collapse>
+          </Navbar>
+        </Wrapper>
+
     );
   }
 }

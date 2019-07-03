@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 
 import Header from './components/Header';
 import Footer from './components/Footer';
+import links from './assets/menu.json';
 
 import Home from "./Home"
 import Search from "./Search"
@@ -68,7 +69,7 @@ class App extends Component {
               <Route exact={true} path='/topics' render={()=>(topics)} />
             </div>
           </Router>
-          <Footer/>
+          <Footer links={links}/>
         </div>
       </ThemeProvider>
       </div>

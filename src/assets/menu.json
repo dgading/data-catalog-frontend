@@ -18,25 +18,34 @@
   ],
   "footer1": [
     {
+      "label": "DKAN2 Docs",
+      "url": "https://dkan2.readthedocs.io/en/latest/",
+      "target": "_blank"
+    },
+    {
+      "label": "DKAN 7 Demo",
+      "url": "https://demo.getdkan.com",
+      "target": "_blank"
+    },
+    {
+      "label": "CivicActions",
+      "url": "https://civicactions.com",
+      "target": "_blank"
+    },
+    {
       "label": "Data.gov",
       "url": "https://data.gov"
     },
     {
       "label": "Interra",
       "url": "https://interra.io"
-    },
-    {
-      "label": "CKAN",
-      "url": "https://ckan.rg"
     }
   ],
   "footer2": [
     {
       "label": "Project Open Data",
       "url": "https://project-open-data.cio.gov"
-    }
-  ],
-  "footer3": [
+    },
     {
       "label": "DCAT",
       "url": "https://www.w3.org/TR/vocab-dcat/",

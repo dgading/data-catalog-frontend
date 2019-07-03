@@ -1,8 +1,8 @@
 {
   "hero": [
     {
-      "title": "Explore & download  data",
-      "intro": "Welcome to the DKAN2 Demo",
+      "title": "Welcome to DKAN",
+      "intro": "DKAN is an open-source data management platform. It treats data as content so that you can easily publish, manage, and maintain your open data no matter the size of your team or the level of technical expertise.",
       "ref": "0"
     }
   ],

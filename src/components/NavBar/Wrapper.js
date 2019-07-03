@@ -1,40 +1,31 @@
 import styled from "styled-components";
 
 export default styled.div`
+  background-color: ${props => props.theme.navBarBackgroundColor};
+  background-image: ${props => props.theme.navBarBackgroundImage};
   position: relative;
   display: block;
   clear: both;
   z-index: 1;
-
-  .navbar {
-      padding: 0 10px 5px 15px;
-      background-color:rgb(12, 118, 188);
+  &:after {
+    content: "";
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    z-index: -1;
+    background: rgba(0, 0, 0, 0.2);
   }
-  &.main-navigation.sa {
-    height: 98px;
-    .navbar {
-      background-position: 50% 53%;
-      padding-left: 32px;
-      padding-right: 32px;
-    }
-    .search {
-      position: absolute;
-      top: 0;
-      right: 32px;
-    }
-  }
-
-  .dropdown-toggle::after {
-    margin-left: .4em;
-    margin-top: .8rem;
+  .navbar-expand-md {
+    padding: 0;
   }
   .navbar-toggler {
-    margin: 5px;
+    margin: .5rem 1rem;
   }
-  .navbar a {
+  .nav-item a {
     display: inline-flex;
-    padding: 0;
-    margin: 28px 40px 20px 0;
+    padding: 0.9em 1.2em;
     text-decoration: none;
     -webkit-font-smoothing: antialiased;
     -webkit-touch-callout: none;
@@ -42,37 +33,35 @@ export default styled.div`
     cursor: pointer;
     outline: 0;
     font-weight: 500;
-    font-size: 1.8rem;
     color: ${props => props.theme.navBarLink};
     transition: all 0.2s linear;
-    border-bottom: 2px solid transparent;
-    &.active {
-      border-color: ${props => props.theme.secondary};
-    }
 
     &:hover {
       color: ${props => props.theme.navBarLink};
       text-decoration: none;
-      border-bottom: 2px solid white;
+      background-color: ${props => props.theme.navBarLinkHoverBack};
+    }
+    &.active {
+      background-color: none !important;
+      box-shadow: inset 0 -4px 0 ${props => props.theme.navBarLinkActiveHoverBack};
+      text-decoration: none;
+      color: ${props => props.theme.navBarLink};
     }
     &:hover.active,
     &:focus.active {
       background-color: none !important;
-      border-bottom: 2px solid white;
+      box-shadow: inset 0 -4px 0 ${props => props.theme.navBarLinkActiveHoverBack};
       color: ${props => props.theme.navBarLink};
     }
   }
 
   @media screen and (max-width: 820px) {
-    .navbar-nav .nav-link {
-      padding-right: 10px;
-      padding-left: 10px;
+    .nav-item {
       display: block;
-    }
-    .search {
-      position: relative;
-      top: auto;
-      right: auto;
+      width: 100%;
+      a {
+        display: block;
+      }
     }
   }
 `;

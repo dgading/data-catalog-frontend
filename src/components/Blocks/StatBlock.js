@@ -1,17 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Wrapper from './Wrapper';
 
 class StatBlock extends React.PureComponent {
 
   render() {
     const { content } = this.props;
-
     return (
-      <div className="stat-block">
+      <Wrapper key={content.ref} className="stat-block">
         <i className={content.icon}></i>
         <h2>{content.title}</h2>
-        <p>{content.body}</p>
-      </div>
+        <p>{content.content}</p>
+      </Wrapper>
     )
 
   }
@@ -20,8 +20,7 @@ class StatBlock extends React.PureComponent {
 StatBlock.propTypes = {
   icon: PropTypes.string,
   title: PropTypes.string,
-  body: PropTypes.string,
-  ref: PropTypes.number,
+  content: PropTypes.any,
 };
 
 export default StatBlock

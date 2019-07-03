@@ -10,6 +10,7 @@ import { Tags } from 'interra-data-catalog-components';
 import DataTable from './components/DataTable';
 import backend from './services/backend';
 import datastore from './services/datastore';
+import Navbar from './components/NavBar';
 
 class Dataset extends Component {
 
@@ -234,6 +235,7 @@ class Dataset extends Component {
 
     return (
       <>
+        <Navbar/>
         <div className="dataset-page container-fluid">
           <div className="row">
             <div className="col-md-3 col-sm-12 p-5">

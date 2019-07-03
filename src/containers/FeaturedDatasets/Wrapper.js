@@ -1,10 +1,8 @@
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
-  padding-top: 40px;
-  padding-bottom: 40px;
-  margin-top: 40px;
-  border-top: 1px solid ${props => props.theme.grayLight};
+  padding-top: 80px;
+  padding-bottom: 60px;
   ul {
     display: flex;
     align-items: flex-start;

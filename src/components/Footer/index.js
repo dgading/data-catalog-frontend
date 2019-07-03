@@ -1,53 +1,50 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Wrapper from './Wrapper';
+//import Copyright from '../Copyright';
+import Menu from '../Menu';
 import Branding from './Branding';
-import FAPIcon from '../FontAwesomePro';
-import Menu from '../Menu'
-import links from '../../assets/menu.json';
 
 class Footer extends React.Component {
 
   render() {
+    const menu1 = this.props.links ? <Menu items={this.props.links.footer1} /> : null;
+    const menu2 = this.props.links ? <Menu items={this.props.links.footer2} /> : null;
 
     return (
-      <Wrapper id="footer" className="page-footer">
-        <div className="container-fluid">
-          <div className="row">
-            <div className="left-foot col-lg-7 col-md-12">
-              <div className="left-foot-content">
-                <Menu className="footer-left-nav" items={links.footer1} title="WEBSITES"  />
-                <Menu className="footer-left-nav" items={links.footer2} title="HELPFUL LINKS" />
-              </div>
+      <Wrapper className="page-footer">
+        <div className="container">
+          <Branding>
+            <h3>Open Source Open Data</h3>
+            <p>
+              We can only realize the full power of open data when the tools used for its collection, publishing and analysis are also open and transparent.
+            </p>
+            <p>
+              Powered by <a href="http://getdkan.com">DKAN</a>
+            </p>
+            <div className="social">
+              <i className="fa fa-facebook" aria-hidden="true" />
+              <i className="fa fa-twitter" aria-hidden="true" />
+              <i className="fa fa-github" aria-hidden="true" />
             </div>
-            <div className="right-foot col-lg-5 col-md-12">
-              <Branding className="right-foot-content">
-                <div className="footer-image-container">
-                </div>
-                <p>
-                  Powered by DKAN and Interra.
-                </p>
-                <div className="social-icon-container">
-                  <a href="https://www.facebook.com/pages/">
-                    <FAPIcon icon="facebook-circle" height="40" width="40"/>
-                  </a>
-                  <a href="https://twitter.com/getdkan">
-                    <FAPIcon icon="twitter-circle" height="40" width="40"/>
-                  </a>
-                  <a href="https://www.linkedin.com/">
-                    <FAPIcon icon="linkedin-circle" height="40" width="40"/>
-                  </a>
-                </div>
-              </Branding>
-            </div>
-          </div>
-        </div>
-        <div className="bottom-foot">
-          <Menu className="footer-bottom-nav" items={links.footer3} horizontal />
+          </Branding>
+          {menu1}
+          {menu2}
         </div>
       </Wrapper>
-
     );
   }
 }
 
+Footer.defaultProps = {
+    state: "loading",
+};
+
+Footer.propTypes = {
+    state: PropTypes.string,
+    item: PropTypes.any,
+    links: PropTypes.object
+};
+
 export default Footer;
+

@@ -20,7 +20,7 @@ const Wrapper = styled.div`
   }
   .logo {
     display: inline-block;
-    height: 46px;
+    padding: 10px 0;
   }
   .row {
     display: flex;

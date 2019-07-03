@@ -45,11 +45,9 @@ const GlobalStyles = createGlobalStyle`
     }
     .item-theme div,
     .theme {
-      color: ${defaultTheme.textColor};
+      color: ${defaultTheme.grayMedium};
       font-size: 1.2rem;
-      background-color: ${defaultTheme.secondary};
-      border-radius: 2px;
-      padding: 4px 6px;
+      padding: 0 6px 0 25px;
       display: inline;
     }
     .search-page .form-control {
@@ -64,14 +62,8 @@ const GlobalStyles = createGlobalStyle`
       margin-bottom: 40px;
     }
     .icon-list-container {
-      margin-top: 0;
-      margin-bottom: 40px;
-      .container-fluid {
-        background-color: #ffffff;
-        border-top: 4px solid #42E288;
-        box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.15);
-        max-width: 1040px;
-      }
+      padding-top: 40px;
+      padding-bottom: 40px;
       h2 {
         font-size: 2.8rem !important;
         letter-spacing: 0;
@@ -92,21 +84,15 @@ const GlobalStyles = createGlobalStyle`
         }
       }
     }
-    .format-types .label {
-      border-radius: 0;
-    }
-    .label[data-format="csv"] {
-      background: #68e8a0;
-    }
-    .label[data-format="rdf+xml"] {
-      background: #3d50ad;
-    }
-    .label[data-format="xml"] {
-      background: #ce3af5;
-    }
-    .label[data-format="json"] {
-      background: #8c9196;
-    }
+    .label[data-format="csv"]     { background: ${defaultTheme.csvIcon}; }
+    .label[data-format="json"]    { background: ${defaultTheme.jsonIcon}; }
+    .label[data-format="pdf"]     { background: ${defaultTheme.pdfIcon}; }
+    .label[data-format="rdf"],     
+    .label[data-format="rdf+xml"] { background: ${defaultTheme.rdfIcon}; }
+    .label[data-format="xml"]     { background: ${defaultTheme.xmlIcon}; }
+    .label[data-format="zip"]     { background: ${defaultTheme.zipIcon}; }
+    .label[data-format="data"]    { background: ${defaultTheme.dataIcon}; }
+  
 
     .resource-table-header {
       position: relative;
@@ -169,8 +155,6 @@ const GlobalStyles = createGlobalStyle`
         width: 50%;
       }
     }
-    /* Temp fix */
-    .search-list-item .item-theme svg { display:none; }
   }
 `;
 export default GlobalStyles;

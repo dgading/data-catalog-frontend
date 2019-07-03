@@ -7,9 +7,10 @@ const Wrapper = styled.div`
     align-content: stretch;
     flex-direction: row;
     flex-wrap: nowrap;
-    justify-content: space-around;
+    justify-content: space-evenly;
     max-width: 1040px;
-    margin: 0 auto;
+    margin-left: auto;
+    margin-right: auto;
     h2,
     h3 {
       margin-top: 0;
@@ -23,8 +24,17 @@ const Wrapper = styled.div`
     margin: 0;
   }
 
+  &.BasicBlock {
+    h2 {
+      padding-bottom: 1.6rem;
+    }
+    .basic-block {
+      padding: 0 20px;
+      min-width: 33%;
+    }
+  }
   &.StatBlock {
-    background: linear-gradient(to right, #0c2499 31%,#007ad0 100%);
+    background-color: ${props => props.theme.primaryLight};
     color: #ffffff;
     position: relative;
     .pane-content {
@@ -42,7 +52,7 @@ const Wrapper = styled.div`
         padding: 0;
       }
       i {
-        color: ${props => props.theme.secondaryDark};
+        color: ${props => props.theme.primary};
         font-size: 48px;
         display: inline-block;
       }
@@ -54,7 +64,6 @@ const Wrapper = styled.div`
   }
   &.StepsBlock {
     background-color: #ffffff;
-    border-top: 1px solid ${props => props.theme.grayLight};
     .steps-block {
       position: relative;
       padding: 0 20px;
@@ -74,12 +83,11 @@ const Wrapper = styled.div`
       left: 50%;
       transform: translateX(-50%);
       border-radius: 100%;
-      border: 2px solid ${props => props.theme.borderColor};
+      border: 1px solid ${props => props.theme.primaryDust};
       line-height: 50px;
-      font-size: 2.4rem;
+      font-size: 20px;
       color: ${props => props.theme.primaryDark};
       text-align: center;
-      font-family: 'Geometria W01 Bold','WorkSansBold',Arial,sans-serif; 
     }
   }
 
