@@ -26,7 +26,7 @@ const SearchListItem = ({
       <ul className="theme-list item-theme">
         {theme.map((topic, index) => (
           <li key={`dist-${topic.identifier}-${index}`}>
-            {topic.title}
+            {topic.data}
           </li>
         ))}
       </ul>

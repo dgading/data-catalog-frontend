@@ -20,15 +20,11 @@ class Home extends Component {
   }
 
   async fetchData() {
-    const { data } = await backend.get(`/collections/theme.json`);
+    const { data } = await backend.get(`/theme`);
     const items = data.map(x => {
-      let item = {
-        identifier: x.identifier,
-        ref: `search?theme=${x.title}`,
-        title: x.title,
-        icon: x.image,
-      }
-      return item
+      x.ref = `search?theme=${x.data}`;
+      x.icon = undefined;
+      return x;
     });
     this.setState({
       items,
@@ -53,7 +49,7 @@ class Home extends Component {
         </Loader>
         <Blocks items={copy.stats} component={StatBlock} type="StatBlock" />
         <Loader hideContentOnLoad backgroundStyle={{backgroundColor: "#f9fafb"}} foregroundStyle={{backgroundColor: "#f9fafb"}} show={show} message={<LoadingSpin width={"3px"} size="30px" primaryColor={"#007BBC"}/>}>
-          <FeaturedDatasets />
+          {/* <FeaturedDatasets /> */}
         </Loader>
       </div>
     );

@@ -81,7 +81,12 @@ class Dataset extends Component {
   }
 
   async fetchData() {
-    const { data } = await backend.get("/collections/dataset/" + this.props.id + ".json");
+    const { data } = await backend.get("/columns/" + this.props.id + "?values=both")
+    // Recreate old transformation from interra_api collections endpoint by:
+    //   1. only keep the first distribution
+    //   2. adding a `"format": "csv"` to it
+    data.distribution.length = 1
+    data.distribution[0].format = "csv"
     const item = Object.assign(data);
 
     this.setState({

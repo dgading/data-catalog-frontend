@@ -34,12 +34,12 @@ const InitialState = {
     facets: {
       "theme": {
         "label": "Topics",
-        "field": "theme.*.title",
+        "field": "theme.*.data",
         "showAll": false
       },
       "keyword": {
         "label": "Tags",
-        "field": "keyword.*.title",
+        "field": "keyword.*.data",
         "showAll": false
       }
     },
@@ -58,8 +58,18 @@ class Search extends Component {
     const { facets } = this.state;
     const searchType = 'Lunr';
     const searchEngine = new search[searchType]();
-    const { data } = await backend.get("/search-index.json");
-    await searchEngine.init(data, facets);
+    // const { data } = await backend.get("/search-index.json");
+    // await searchEngine.init(data, facets);
+    const { data } = await backend.get("/dataset?values=both");
+    const items = data.map(x => {
+      let item = {
+        doc: x,
+        ref: "",
+      }
+      return item;
+    });
+    await searchEngine.init(items, facets);
+
     this.setState({
       searchEngine
     });
@@ -302,7 +312,7 @@ class Search extends Component {
             <div className="results-list col-md-9 col-sm-12 p-5">
               <SearchInput
                 label="Dataset Search Filter"
-                labelId="dataset_search_filter_label"
+                labelid="dataset_search_filter_label"
                 labelClassName="sr-only"
                 id="search"
                 ariaLabel="Dataset Search Filter"
