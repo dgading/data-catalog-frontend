@@ -58,22 +58,27 @@ class Search extends Component {
     const { facets } = this.state;
     const searchType = 'Lunr';
     const searchEngine = new search[searchType]();
-    // const { data } = await backend.get("/search-index.json");
-    // await searchEngine.init(data, facets);
-    const { data } = await backend.get("/dataset?values=both");
-    const items = data.map(x => {
-      let item = {
-        doc: x,
-        ref: "",
-      }
-      return item;
-    });
-    await searchEngine.init(items, facets);
-
+    const { data } = await backend.get("/search-index.json");
+    await searchEngine.init(data, facets);
+    //const { data } = await backend.get("/dataset?values=both");
+    //console.log(data);
+    // const items = data.map(x => {
+    //   let item = {
+    //     doc: x,
+    //     ref: "",
+    //   }
+    //   return item;
+    // });
+    //console.log('items:', items);
+    //console.log('searchEngine: ', searchEngine);
+    //await searchEngine.init(items, facets);
+    //console.log('searchEngine: ', searchEngine);
     this.setState({
       searchEngine
     });
     return searchEngine;
+    
+
   }
 
   /**
