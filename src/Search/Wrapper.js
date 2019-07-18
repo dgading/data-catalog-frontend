@@ -4,12 +4,9 @@ const SearchWrapper = styled.div`
 
   .search-sidebar-options {
     background-color: #FFFFFF;
-    border: 1px solid ${props => props.theme.grayLight};
+    border: 1px solid ${props => props.theme.borderColor};
     padding: 30px;
     margin-bottom: 25px;
-    -webkit-box-shadow: 1px 1px 7px 0px rgba(204,204,204,.8);
-    -moz-box-shadow: 1px 1px 7px 0px rgba(204,204,204,.8);
-    box-shadow: 1px 1px 7px 0px rgba(204,204,204,.8);
   }
 
   .search-sidebar-label {
@@ -20,13 +17,13 @@ const SearchWrapper = styled.div`
   .pagination {
     li a,
     li span {
-      border: 1px solid ${props => props.theme.grayLight};
+      border: 1px solid ${props => props.theme.borderColor};
     }
 
     li.active > a,
     li.active > a:focus {
       background-color: ${props => props.theme.highlight};
-      border-color: ${props => props.theme.grayLight};
+      border-color: ${props => props.theme.borderColor};
     }
   }
 

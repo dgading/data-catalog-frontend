@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 const FacetBlock = styled.div`
   padding: 20px 0;
-  border-top: 1px solid ${props => props.theme.grayLight};
+  border-top: 1px solid ${props => props.theme.borderColor};
   &:first-of-type {
     padding: 0 0 20px 0;
     border-top: none;
