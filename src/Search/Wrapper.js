@@ -3,6 +3,7 @@ import styled from 'styled-components';
 const SearchWrapper = styled.div`
 
   .search-sidebar-options {
+    background-color: #FFFFFF;
     border: 1px solid ${props => props.theme.grayLight};
     padding: 30px;
     margin-bottom: 25px;
@@ -29,7 +30,9 @@ const SearchWrapper = styled.div`
     }
   }
 
-  
+  .results-message {
+    margin: 1.6rem 0;
+  }
 
   .results-list,
   .search-sidebar {

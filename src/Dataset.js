@@ -5,8 +5,11 @@ import { Title } from 'interra-data-catalog-components';
 import { Text } from 'interra-data-catalog-components';
 import { Organization } from 'interra-data-catalog-components';
 import { FileDownload } from 'interra-data-catalog-components';
+// import Organization from './components/Organization';
+// import FileDownload from './components/FileDownload';
 import { Table } from 'interra-data-catalog-components';
 import { Tags } from 'interra-data-catalog-components';
+//import Tags from './components/Tags';
 import DataTable from './components/DataTable';
 import backend from './services/backend';
 import datastore from './services/datastore';
@@ -82,12 +85,7 @@ class Dataset extends Component {
   }
 
   async fetchData() {
-    const { data } = await backend.get("/columns/" + this.props.id + "?values=both")
-    // Recreate old transformation from interra_api collections endpoint by:
-    //   1. only keep the first distribution
-    //   2. adding a `"format": "csv"` to it
-    data.distribution.length = 1
-    data.distribution[0].format = "csv"
+    const { data } = await backend.get("/dataset/" + this.props.id + "?values=both");
     const item = Object.assign(data);
 
     this.setState({
@@ -99,7 +97,7 @@ class Dataset extends Component {
       resources
     });
     Promise.all(resources.map(async (resource) => {
-      if ('format' in resource && resource.format === 'csv') {
+      if ('format' in resource ) {
         const file = new datastore['file'](resource.downloadURL);
         const data = await file.fetch();
         resource.pageSize = 10;
@@ -131,9 +129,9 @@ class Dataset extends Component {
 
   render() {
     const { item, show, resources } = this.state;
-    const orgName = 'publisher' in item ? item.publisher.name : "";
-    const orgImage = 'publisher' in item ? item.publisher.image : "";
-    const orgDesc = 'publisher' in item ? item.publisher.description : "";
+    const orgName = 'publisher' in item && item.publisher.data ? item.publisher.data.name : "";
+    const orgImage = 'publisher' in item && item.publisher.data ? item.publisher.data.image : "";
+    const orgDesc = 'publisher' in item && item.publisher.data ? item.publisher.data.description : "";
     const tag = 'keyword' in item ? item.keyword : [];
     const theme = 'theme' in item ? item.theme : [];
     const num_rows = 'datastore_statistics' in item ? item.datastore_statistics.rows : "";
@@ -149,7 +147,7 @@ class Dataset extends Component {
         const show = values.length > 0 ? false : true;
         const pageSize = values.length === 0 || values.length > 10 ? 10  : values.length + 1;
         const pages = r.pages;
-        if ('format' in r && r.format === 'csv') {
+        if ('format' in r ) {
           return <div key={dataKey}>
               <FileDownload resource={r} key={r.title}/>
               <strong>Rows:</strong> {values.length}
@@ -172,8 +170,8 @@ class Dataset extends Component {
 
     const Topic = () => {
       return theme.map(t => {
-        const topicLink = `<a className="theme" href="../search?theme=${t.title}">${t.title}</a>`;
-        return <Text key={t.title} value={topicLink} />;
+        const topicLink = `<a className="theme" href="../search?theme=${t.data}">${t.data}</a>`;
+        return <Text key={t.data} value={topicLink} />;
       });
     };
 

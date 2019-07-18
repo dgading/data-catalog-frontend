@@ -6,7 +6,6 @@ class IconListItem extends React.PureComponent {
 
   render() {
     const { item } = this.props;
-    console.log('item: ', item);
     const color =  "#0A77BD";
     let content = '';
 

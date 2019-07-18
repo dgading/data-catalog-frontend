@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from "react-router-dom";
 
 import Header from './components/Header';
-import Footer from './components/Footer';
+import { Footer } from 'interra-data-catalog-components';
 import links from './assets/menu.json';
 
 import Home from "./Home"
@@ -11,6 +11,7 @@ import Dataset from "./Dataset";
 import About from "./About";
 import Topics from "./Topics";
 
+import "@cmsgov/design-system-core/dist/index.css"
 import Theme from './theme/default'
 import { ThemeProvider } from 'styled-components'
 import GlobalStyles from './theme/globalStyles';
@@ -28,12 +29,10 @@ class App extends Component {
   }
 
   handleOpenModal () {
-    console.log("handle Open Modal")
     this.setState({ showModal: true });
   }
 
   handleCloseModal () {
-    console.log("handle Close Modal")
     this.setState({ showModal: false });
   }
   render() {

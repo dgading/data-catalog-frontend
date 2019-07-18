@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Wrapper from './Wrapper';
 import backend from '../../services/backend';
-import {SearchList} from 'interra-data-catalog-components'
+import { SearchList } from 'interra-data-catalog-components'
 
 class FeaturedDatasets extends Component {
 
@@ -11,7 +11,7 @@ class FeaturedDatasets extends Component {
   }
 
   async fetchData() {
-    const { data } = await backend.get(`collections/dataset.json`);
+    const { data } = await backend.get("/dataset/")
     if (Array.isArray(data)) {
       const items = data.map(x => {
         let id = 'identifier' in x ? x.identifier : '';

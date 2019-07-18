@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {Link} from 'react-router-dom';
 import Loader from 'react-loader-advanced';
 import LoadingSpin from 'react-loading-spin';
-import SearchList from './components/SearchList';
+import { SearchList } from 'interra-data-catalog-components';
 import FacetList from './components/FacetList';
 import search from './services/search';
 import backend from './services/backend';
@@ -13,7 +13,7 @@ import { withRouter} from 'react-router-dom'
 import SearchInput from './Search/SearchInput';
 import SearchWrapper from './Search/Wrapper';
 import { Select, FormLabel } from '@cmsgov/design-system-core';
-import PageHeader from './components/PageHeader';
+import { PageHeader } from 'interra-data-catalog-components';
 
 const InitialState = {
     items: [{
@@ -34,12 +34,12 @@ const InitialState = {
     facets: {
       "theme": {
         "label": "Topics",
-        "field": "theme.*.data",
+        "field": "theme.*.title",
         "showAll": false
       },
       "keyword": {
         "label": "Tags",
-        "field": "keyword.*.data",
+        "field": "keyword.*.title",
         "showAll": false
       }
     },
@@ -60,25 +60,12 @@ class Search extends Component {
     const searchEngine = new search[searchType]();
     const { data } = await backend.get("/search-index.json");
     await searchEngine.init(data, facets);
-    //const { data } = await backend.get("/dataset?values=both");
-    //console.log(data);
-    // const items = data.map(x => {
-    //   let item = {
-    //     doc: x,
-    //     ref: "",
-    //   }
-    //   return item;
-    // });
-    //console.log('items:', items);
-    //console.log('searchEngine: ', searchEngine);
-    //await searchEngine.init(items, facets);
-    //console.log('searchEngine: ', searchEngine);
+
     this.setState({
       searchEngine
     });
     return searchEngine;
     
-
   }
 
   /**
@@ -145,7 +132,7 @@ class Search extends Component {
           ref: `/dataset/${x.identifier}`,
         };
         if (x.hasOwnProperty('publisher') && x.publisher.hasOwnProperty('name')) {
-          item.publisher = x.publisher.name;
+          item.publisher = x.publisher.data.name;
         }
         else {
           item.publisher = ' ';
@@ -306,6 +293,7 @@ class Search extends Component {
       Link,
       url: "search"
     };
+
     return (
       <>
         <Navbar className="sa"/>
@@ -314,7 +302,7 @@ class Search extends Component {
             <PageHeader title="Datasets" />
           </div>
           <div className="row">
-            <div className="results-list col-md-9 col-sm-12 p-5">
+            <div className="results-list col-md-8 col-sm-12 p-5">
               <SearchInput
                 label="Dataset Search Filter"
                 labelid="dataset_search_filter_label"
@@ -326,7 +314,7 @@ class Search extends Component {
                 onChange={this.termChange.bind(this)}
               />
               <Loader hideContentOnLoad backgroundStyle={{backgroundColor: "#f9fafb"}} foregroundStyle={{backgroundColor: "#f9fafb"}} show={show} message={<LoadingSpin width={"3px"} primaryColor={"#007BBC"}/>}>
-                <SearchList items={items} message={message} downloadTitle={'Download CSV'} />
+                <SearchList items={items} message={message} />
                 <Wrapper className="pagination-container">
                   {this.currentPageResults()}
                   <Select
@@ -352,7 +340,7 @@ class Search extends Component {
                 </Wrapper>
               </Loader>
             </div>
-            <div className="search-sidebar col-md-3 col-sm-12 p-5">
+            <div className="search-sidebar col-md-4 col-sm-12 p-5">
               <div className="search-sidebar-options ds-u-radius">
                 <FormLabel className="search-sidebar-label" for="search_sort_change">Sort by</FormLabel>
                 <Select
