@@ -17,7 +17,7 @@ exports.createPages = async ({ actions: { createPage } }) => {
     context: {  }
   })
 
-  jsonData.docs.forEach(data => {
+  jsonData.forEach(data => {
     const dataset = data.doc;
     createPage({
       path: `/dataset/${dataset.identifier}`,
