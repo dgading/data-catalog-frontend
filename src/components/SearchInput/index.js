@@ -1,7 +1,6 @@
 import React from 'react';
-import { Redirect } from "react-router-dom";
+import { navigate } from "gatsby";
 import { Button, FormGroup, Label, Input  } from 'reactstrap';
-import Search from "../../Search"
 import FAPIcon from "../FontAwesomePro"
 import Form from './Form';
 
@@ -23,8 +22,9 @@ class SearchInput extends React.Component {
   };
 
   handleClick(e) {
+    const {query} = this.state;
     e.preventDefault();
-    this.setState({ navigate: true })
+    navigate(`/search?q=${query}`)
   }
   handleString(e) {
     e.preventDefault();
@@ -43,17 +43,11 @@ class SearchInput extends React.Component {
     });
   }
 
-  render() {
-    const search = <Search />
-    const {query} = this.state;
+  render() {    
     const placeholder = this.props.placeholder ? this.props.placeholder : "Search";
     const className = this.props.className ? this.props.className : "";
 
     let reset = this.state.textEntered ? <Button type="reset" id="reset" onClick={ this.handleReset }><FAPIcon icon="times" height="28" width="28"/></Button> : false;
-
-    if (this.state.navigate === true) {
-      return <Redirect to={`/search?q=${query}`} component={search} />
-    }
 
     return (
 
