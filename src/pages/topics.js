@@ -3,8 +3,8 @@ import Layout from "../components/Layout";
 import Wrapper from "../containers/topics/Wrapper";
 import NavBar from "../components/NavBar";
 
-const Topics = () => (
-  <Layout>
+const Topics = ({path}) => (
+  <Layout path={path} title="Topics">
     <NavBar />
     <Wrapper className="page container-fluid">
       <div className="section">

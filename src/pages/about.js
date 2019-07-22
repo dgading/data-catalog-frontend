@@ -4,8 +4,8 @@ import Layout from "../components/Layout";
 import Wrapper from "../containers/about/Wrapper";
 import NavBar from '../components/NavBar';
 
-const About = () => (
-  <Layout>
+const About = ({path}) => (
+  <Layout path={path} title="About">
     <NavBar />
     <Wrapper className="page container-fluid">
       <div className="section">

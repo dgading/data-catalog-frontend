@@ -7,14 +7,14 @@
 
 import React from "react"
 import PropTypes from "prop-types"
-import Header from "../Header";
+import Helmet from "react-helmet";
 import { Footer } from 'interra-data-catalog-components';
+import Header from "../Header";
 
-
-const Layout = ({ children, path }) => {
+const Layout = ({ children, path, title }) => {
   return (
     <div className="App">
-    {/* siteTitle={data.site.siteMetadata.title}  */}
+      <Helmet title={`${title} - DKAN Demo`} defer={false} />
       <Header path={path}/> 
       <main>{children}</main>
       <Footer />

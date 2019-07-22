@@ -239,7 +239,7 @@ class Dataset extends Component {
     }
 
     return (
-      <Layout>
+      <Layout path={this.props.path} title={item.title}>
         <Navbar/>
         <div className="dataset-page container-fluid">
           <div className="row">

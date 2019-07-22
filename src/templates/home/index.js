@@ -17,9 +17,9 @@ const Home = ({ pageContext: { collections }, path }) => {
       return item;
     })
     return (
-      <Layout>
+      <Layout path={path} title="Home">
+        <NavBar />
         <div className="home-page">
-          <NavBar />
           <Hero title={copy.hero[0].title} intro={copy.hero[0].intro} />
           <IconList 
             items={ items }

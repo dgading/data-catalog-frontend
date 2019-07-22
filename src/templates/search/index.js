@@ -297,7 +297,7 @@ class Search extends Component {
     };
 
     return (
-      <Layout>
+      <Layout path={this.props.path} title="Search">
         <Navbar className="sa"/>
         <Wrapper className="search-page containter-fluid m-5">
           <div className="row">
