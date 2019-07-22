@@ -1,19 +1,18 @@
-import React, { Component } from 'react';
-import {Link} from 'react-router-dom';
-import Loader from 'react-loader-advanced';
-import LoadingSpin from 'react-loading-spin';
-import { SearchList } from 'interra-data-catalog-components';
-import FacetList from './components/FacetList';
-import search from './services/search';
-import backend from './services/backend';
-import Navbar from './components/NavBar';
+import React, { Component } from "react";
+import { Link } from "gatsby";
+import Loader from "react-loader-advanced";
+import LoadingSpin from "react-loading-spin";
+import { PageHeader, SearchList } from "interra-data-catalog-components";
+import { Select, FormLabel } from "@cmsgov/design-system-core";
+import FacetList from "../../components/FacetList";
+import search from "../../services/search";
+import backend from "../../services/backend";
+import Navbar from "../../components/NavBar";
+import Layout from "../../components/Layout";
 import Pagination from "react-js-pagination";
-import Wrapper from './theme/pagination.js'
-import { withRouter} from 'react-router-dom'
-import SearchInput from './Search/SearchInput';
-import SearchWrapper from './Search/Wrapper';
-import { Select, FormLabel } from '@cmsgov/design-system-core';
-import { PageHeader } from 'interra-data-catalog-components';
+import StyledPagination from "../../theme/pagination.js"
+import SearchInput from "./SearchInput";
+import Wrapper from "./Wrapper";
 
 const InitialState = {
     items: [{
@@ -263,6 +262,9 @@ class Search extends Component {
     if (!this.state.searchEngine) {
       this.fetchData();
     }
+    if(typeof window !== undefined) {
+      this.setState({window: true})
+    }
   }
 
   currentPageResults() {
@@ -295,9 +297,9 @@ class Search extends Component {
     };
 
     return (
-      <>
+      <Layout>
         <Navbar className="sa"/>
-        <SearchWrapper className="search-page containter-fluid m-5">
+        <Wrapper className="search-page containter-fluid m-5">
           <div className="row">
             <PageHeader title="Datasets" />
           </div>
@@ -313,32 +315,34 @@ class Search extends Component {
                 placeholder="Type your search term here...e.g. physician quality, medicare spending..."
                 onChange={this.termChange.bind(this)}
               />
-              <Loader hideContentOnLoad backgroundStyle={{backgroundColor: "#f9fafb"}} foregroundStyle={{backgroundColor: "#f9fafb"}} show={show} message={<LoadingSpin width={"3px"} primaryColor={"#007BBC"}/>}>
-                <SearchList items={items} message={message} />
-                <Wrapper className="pagination-container">
-                  {this.currentPageResults()}
-                  <Select
-                    aria-label="Results per page"
-                    defaultValue={"10"}
-                    size="medium"
-                    name="results_per_page"
-                    onChange={this.handlePageSizeChange.bind(this)}
-                  >
-                    {[5,10,15,20,25,30,35,40,45,50].map(el => (
-                      <option key={el} value={el}>{`${el} per page`}</option>
-                    ))
-                    }
-                  </Select>
-                  <Pagination
-                    hideDisabled
-                    activePage={page}
-                    itemsCountPerPage={pageSize}
-                    totalItemsCount={total}
-                    pageRangeDisplayed={5}
-                    onChange={this.handlePageChange.bind(this)}
-                  />
-                </Wrapper>
-              </Loader>
+              {this.state.window &&
+                <Loader hideContentOnLoad backgroundStyle={{backgroundColor: "#f9fafb"}} foregroundStyle={{backgroundColor: "#f9fafb"}} show={show} message={<LoadingSpin width={"3px"} primaryColor={"#007BBC"}/>}>
+                  <SearchList items={items} message={message} />
+                  <StyledPagination className="pagination-container">
+                    {this.currentPageResults()}
+                    <Select
+                      aria-label="Results per page"
+                      defaultValue={"10"}
+                      size="medium"
+                      name="results_per_page"
+                      onChange={this.handlePageSizeChange.bind(this)}
+                    >
+                      {[5,10,15,20,25,30,35,40,45,50].map(el => (
+                        <option key={el} value={el}>{`${el} per page`}</option>
+                      ))
+                      }
+                    </Select>
+                    <Pagination
+                      hideDisabled
+                      activePage={page}
+                      itemsCountPerPage={pageSize}
+                      totalItemsCount={total}
+                      pageRangeDisplayed={5}
+                      onChange={this.handlePageChange.bind(this)}
+                    />
+                  </StyledPagination>
+                </Loader>
+              }
             </div>
             <div className="search-sidebar col-md-4 col-sm-12 p-5">
               <div className="search-sidebar-options ds-u-radius">
@@ -360,10 +364,10 @@ class Search extends Component {
               </div>
             </div>
           </div>
-        </SearchWrapper>
-      </>
+        </Wrapper>
+      </Layout>
     );
   }
 }
 
-export default withRouter(Search);
+export default Search;

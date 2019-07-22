@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const Wrapper = styled.div`
+const StyledPagination = styled.div`
   text-align: center;
   display: flex;
   align-content: center;
@@ -77,4 +77,4 @@ const Wrapper = styled.div`
   }
 `;
 
-export default Wrapper;
+export default StyledPagination;

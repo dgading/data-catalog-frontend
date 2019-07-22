@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const SearchWrapper = styled.div`
+const Wrapper = styled.div`
 
   .search-sidebar-options {
     background-color: #FFFFFF;
@@ -37,4 +37,4 @@ const SearchWrapper = styled.div`
   }
 `;
 
-export default SearchWrapper;
+export default Wrapper;

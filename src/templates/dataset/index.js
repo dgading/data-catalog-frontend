@@ -1,16 +1,18 @@
-import React, { Component } from 'react';
-import Loader from 'react-loader-advanced';
-import LoadingSpin from 'react-loading-spin';
-import { Title } from 'interra-data-catalog-components';
-import { Text } from 'interra-data-catalog-components';
-import { Organization } from 'interra-data-catalog-components';
-import { FileDownload } from 'interra-data-catalog-components';
-import { Table } from 'interra-data-catalog-components';
-import { Tags } from 'interra-data-catalog-components';
-import DataTable from './components/DataTable';
-import backend from './services/backend';
-import datastore from './services/datastore';
-import Navbar from './components/NavBar';
+import React, { Component } from "react";
+import Loader from "react-loader-advanced";
+import LoadingSpin from "react-loading-spin";
+import { 
+  Title,
+  Text,
+  Organization,
+  FileDownload,
+  Table } from "interra-data-catalog-components";
+import Tags from "../../components/Tags";
+import Layout from "../../components/Layout";
+import DataTable from "../../components/DataTable";
+import backend from "../../services/backend";
+import datastore from "../../services/datastore";
+import Navbar from "../../components/NavBar";
 
 class Dataset extends Component {
 
@@ -23,7 +25,8 @@ class Dataset extends Component {
       }
     },
     resources: [],
-    show: true
+    show: true,
+    pageSize: 10
   }
 
   async pageChange(page) {
@@ -82,7 +85,8 @@ class Dataset extends Component {
   }
 
   async fetchData() {
-    const { data } = await backend.get("/dataset/" + this.props.id + "?values=both");
+    const id = this.props.pageContext.dataset.identifier;
+    const { data } = await backend.get("/dataset/" + id + "?values=both");
     const item = Object.assign(data);
 
     this.setState({
@@ -94,11 +98,14 @@ class Dataset extends Component {
       resources
     });
     Promise.all(resources.map(async (resource) => {
-      if ('format' in resource ) {
-        const file = new datastore['file'](resource.downloadURL);
+      
+
+      if ('format' in resource.data ) {
+        const file = new datastore['file'](resource.data.downloadURL);
         const data = await file.fetch();
+        
         resource.pageSize = 10;
-        resource.pages = Math.ceil(data.length / resource.pageSize);
+        resource.pages = Math.ceil(data.length / this.state.pageSize);
         resource.values = data;
         resource.page = 0;
         resource.columns = this.prepareColumns(data[0]);
@@ -122,6 +129,9 @@ class Dataset extends Component {
 
   componentDidMount() {
     this.fetchData();
+    if(typeof window !== undefined) {
+      this.setState({window: true})
+    }
   }
 
   render() {
@@ -137,16 +147,16 @@ class Dataset extends Component {
 
     const Resources = () => {
       return resources.map((r, i) => {
-        const values = 'values' in r ? r.values : [];
+        const values = 'values' in r.data ? r.data.values : [];
         const data = values.slice(0,10);
-        const columns = 'columns' in r ? r.columns : [];
-        const dataKey = `${r.title}-${r.format}`;
+        const columns = 'columns' in r ? r.data.columns : [];
+        const dataKey = `${r.data.title}-${r.data.format}`;
         const show = values.length > 0 ? false : true;
         const pageSize = values.length === 0 || values.length > 10 ? 10  : values.length + 1;
-        const pages = r.pages;
-        if ('format' in r ) {
+        const pages = r.data.pages;
+        if ('format' in r.data ) {
           return <div key={dataKey}>
-              <FileDownload resource={r} key={r.title}/>
+              <FileDownload resource={r.data} key={r.title}/>
               <strong>Rows:</strong> {values.length}
                 <DataTable
                   index={i}
@@ -161,7 +171,7 @@ class Dataset extends Component {
                   columns={columns} />
             </div>;
         }
-        return <div key={dataKey}><FileDownload resource={r} key={r.title}/></div>;
+        return <div key={dataKey}><FileDownload resource={r.data} key={r.title}/></div>;
       });
     };
 
@@ -229,7 +239,7 @@ class Dataset extends Component {
     }
 
     return (
-      <>
+      <Layout>
         <Navbar/>
         <div className="dataset-page container-fluid">
           <div className="row">
@@ -238,21 +248,23 @@ class Dataset extends Component {
             </div>
             <div className="results-list col-md-9 col-sm-12 p-5">
               <Title title={item.title} />
+              {this.state.window &&
                 <Loader backgroundStyle={{backgroundColor: "#f9fafb"}} foregroundStyle={{backgroundColor: "#f9fafb"}} show={show} message={<LoadingSpin width={"3px"} primaryColor={"#007BBC"}/>}>
                   <div className="theme-wrapper">
                     { Topic() }
                   </div>
                   <Text value={item.description} />
                   { Resources() }
-                  <Tags tags={tag} path="../../../search?keyword=" />
+                  <Tags tags={tag} path="/search?keyword=" />
                   <Table configuration={labelsT1} data={valuesT1} title="What's in this Dataset?" th1="Rows" th2="Columns" tableclass="table-one" />
                   <Table configuration={labelsT2} data={valuesT2} title="Columns in this Dataset" th1="Column Name" th2="Type" tableclass="table-two" />
                   <Table configuration={labelsT3} data={valuesT3} tableclass="table-three" />
                 </Loader>
+              }
             </div>
           </div>
         </div>
-      </>
+      </Layout>
     );
   }
 }
